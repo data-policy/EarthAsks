@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation Order Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Noto+Serif:ital,wdth,wght@0,87.5,400..700;1,87.5,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --ink:#231F20;
+    --paper:#F5F5F5;
+    --card:#ffffff;
+    --line:#D9DEE1;
+    --accent:#15769A;       /* lecture-hall blue */
+    --accent-soft:#E2F1F7;
+    --gold:#F8972A;
+    --break:#F8972A;
+    --break-bg:#FDEBD7;
+    --danger:#EF3B24;
+    --radius:10px;
+    --sans:"Inter","Pretendard Variable",Pretendard,system-ui,sans-serif;
+    --serif:"Noto Serif","Pretendard Variable",Pretendard,serif;
+    font-size:16px;
+  }
+  a{color:#15769A}
+  a:visited{color:#A1238F}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    padding:2rem 1rem 4rem;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  header{margin-bottom:2rem;border-bottom:3px double var(--line);padding-bottom:1.2rem}
+  header .eyebrow{
+    font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600
+  }
+  header h1{
+    font-family:var(--serif);font-stretch:87.5%;
+    font-size:clamp(1.6rem,4vw,2.3rem);
+    font-weight:700;margin-top:.25rem
+  }
+  header p{color:#4E6470;margin-top:.4rem;width:100%}
+
+  .grid{display:grid;grid-template-columns:1.2fr 1fr;gap:1.25rem}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.25rem;box-shadow:0 1px 3px rgba(31,36,48,.06)
+  }
+  .card h2{
+    font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:1rem;font-weight:700
+  }
+
+  /* group list */
+  .group-row{
+    border:1px solid var(--line);border-left-width:4px;border-radius:8px;
+    padding:.6rem;margin-bottom:.65rem
+  }
+  /* group-box colors are assigned by script: the six palette accents first,
+     then Office-style shade/hue variations so no two boxes ever share a color */
+  .group-top{display:flex;gap:.5rem}
+  .group-top input{
+    flex:1;min-width:0;padding:.55rem .7rem;border:1px solid var(--line);border-radius:6px;
+    font-size:.95rem;background:#fff;font-family:var(--sans)
+  }
+  .group-top input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .group-top button{
+    border:1px solid var(--line);background:#fff;color:var(--danger);
+    border-radius:6px;width:2.3rem;flex:0 0 2.3rem;cursor:pointer;font-size:1rem;line-height:1
+  }
+  .group-top button:hover{background:#FDE4E0;border-color:var(--danger)}
+  .group-constraints{
+    display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.5rem
+  }
+  @media(max-width:480px){.group-constraints{grid-template-columns:1fr}}
+  .constraint label{
+    display:block;font-size:.7rem;font-weight:600;color:#6E828D;margin-bottom:.2rem;
+    letter-spacing:.02em
+  }
+  .constraint select{
+    width:100%;padding:.4rem .5rem;border:1px solid var(--line);border-radius:6px;
+    font-size:.85rem;background:#fff;font-family:var(--sans);color:var(--ink)
+  }
+  .constraint select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .constraint select.set{border-color:var(--gold);background:#FEF2E2}
+  .add-btn{
+    margin-top:.3rem;width:100%;padding:.55rem;border:1px dashed var(--accent);
+    background:var(--accent-soft);color:var(--accent);border-radius:6px;cursor:pointer;
+    font-weight:600;font-size:.9rem;font-family:var(--sans)
+  }
+  .add-btn:hover{background:#CBE9F8}
+
+  /* settings */
+  .field{margin-bottom:1rem}
+  .field label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.3rem;color:#4E6470}
+  .field input,.field select{
+    width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:6px;
+    font-size:.95rem;font-family:var(--sans);background:#FFFFFF;color:var(--ink)
+  }
+  .field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+  .field .hint{font-size:.75rem;color:#6E828D;margin-top:.25rem}
+
+  /* button row */
+  .btn-row{display:flex;gap:.75rem;margin:1.6rem 0;flex-wrap:wrap}
+  .btn-row button{
+    flex:1 1 12rem;padding:1rem .75rem;border-radius:var(--radius);cursor:pointer;
+    font-family:var(--serif);font-stretch:87.5%;font-weight:700;letter-spacing:.06em;
+    transition:transform .08s ease, box-shadow .08s ease;font-size:1.1rem
+  }
+  .btn-row button:active{transform:translateY(2px)}
+  .btn-row button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  #generateBtn{
+    color:#fff;background:var(--accent);border:none;box-shadow:0 3px 0 #0F5570;font-size:1.25rem
+  }
+  #generateBtn:hover{background:#126180}
+  #generateBtn:active{box-shadow:0 1px 0 #0F5570}
+  #rescheduleBtn{
+    color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);
+    box-shadow:0 3px 0 #B5DCE8
+  }
+  #rescheduleBtn:hover{background:#CBE9F8}
+  #rescheduleBtn:active{box-shadow:0 1px 0 #B5DCE8}
+  #clearBtn{
+    color:var(--danger);background:#fff;border:1px solid var(--danger);
+    box-shadow:0 3px 0 #F8C2B8
+  }
+  #clearBtn:hover{background:#FDE4E0}
+  #clearBtn:active{box-shadow:0 1px 0 #F8C2B8}
+  #rescheduleBtn[disabled]{
+    opacity:.45;cursor:not-allowed;box-shadow:none;transform:none
+  }
+
+  .error,.warning{
+    border-radius:6px;padding:.6rem .8rem;font-size:.9rem;margin-bottom:1rem;display:none
+  }
+  .error{color:var(--danger);background:#FDE4E0;border:1px solid #F5B5AB}
+  .warning{color:var(--break);background:var(--break-bg);border:1px solid #F8D2A8}
+
+  /* schedule */
+  #result{display:none}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th,td{padding:.65rem .8rem;text-align:left;border-bottom:1px solid var(--line)}
+  th{
+    font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:#4E6470;
+    border-bottom:2px solid var(--ink)
+  }
+  td.order{font-family:var(--serif);font-stretch:87.5%;font-weight:700;color:var(--accent);width:3rem}
+  td .badge{
+    display:inline-block;font-size:.68rem;color:var(--gold);border:1px solid #FBCD94;
+    background:#FEF2E2;border-radius:4px;padding:.05rem .35rem;margin-left:.4rem;
+    vertical-align:middle;white-space:nowrap
+  }
+  tr.break-row td{
+    background:var(--break-bg);color:var(--break);font-weight:600;font-style:italic
+  }
+  .meta{font-size:.85rem;color:#4E6470;margin-bottom:.8rem}
+  .actions{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+  .actions button{
+    padding:.5rem .9rem;border:1px solid var(--line);background:#fff;border-radius:6px;
+    cursor:pointer;font-size:.85rem;font-weight:600;color:var(--ink);font-family:var(--sans)
+  }
+  .actions button:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+  @media print{
+    body{padding:0;background:#fff}
+    .card.inputs,.btn-row,.actions,header p{display:none}
+    #result{display:block !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Fair and Flexible</div>
+    <h1>Presentation Order Generator</h1>
+    <p>Enter your student groups, set the timing, and press Generate to draw a random order and build the full schedule — with a break scheduled at the halfway point. Each group can optionally request to present before or after a certain time, and the random draw will respect those requests.</p>
+  </header>
+
+  <div class="grid">
+    <section class="card inputs">
+      <h2>Groups</h2>
+      <div id="groups"></div>
+      <button class="add-btn" id="addGroup" type="button">+ Add group</button>
+    </section>
+
+    <section class="card inputs">
+      <h2>Timing</h2>
+      <div class="field">
+        <label for="startTime">Start time</label>
+        <select id="startTime"></select>
+      </div>
+      <div class="field">
+        <label for="duration">Presentation time per group (minutes)</label>
+        <input type="number" id="duration" min="5" step="5" value="20">
+      </div>
+      <div class="field">
+        <label for="breakLen">Break duration (minutes)</label>
+        <input type="number" id="breakLen" min="0" step="5" value="20">
+        <div class="hint">The break is placed after the first half of the groups (after ⌈n/2⌉ presentations).</div>
+      </div>
+      <div class="field">
+        <div class="hint">Time requests: "Should present before" means the group's slot must <strong>end</strong> by that time. "Should present after" means the slot must <strong>start</strong> at or after that time. Leave them blank for no preference.</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="btn-row">
+    <button id="generateBtn" type="button">Generate</button>
+    <button id="rescheduleBtn" type="button" disabled title="Keeps the same order; recalculates times with the current timing options">Keep the Order and Reschedule</button>
+    <button id="clearBtn" type="button">Clear and Reschedule</button>
+  </div>
+  <div class="error" id="error"></div>
+  <div class="warning" id="warning"></div>
+
+  <section class="card" id="result">
+    <h2>Schedule</h2>
+    <div class="meta" id="meta"></div>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Group</th><th>From</th><th>To</th></tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="actions">
+      <button type="button" id="pngBtn">Finalize and generate PNG</button>
+      <button type="button" id="copyBtn">Copy as text</button>
+      <button type="button" onclick="window.print()">Print</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const groupsEl = document.getElementById('groups');
+  const errorEl  = document.getElementById('error');
+  const warnEl   = document.getElementById('warning');
+  const result   = document.getElementById('result');
+  const tbody    = document.getElementById('tbody');
+  const metaEl   = document.getElementById('meta');
+  const rescheduleBtn = document.getElementById('rescheduleBtn');
+  let lastText  = '';
+  let lastOrder = null;   // most recently drawn order: array of {name, before, after}
+  let lastTiming = null;  // timing options used for the displayed schedule
+
+  const DEFAULTS = { start:840, duration:20, breakLen:20, rows:6 }; // 840 min = 2:00 PM
+
+  // ---------- group-box colors ----------
+  // The six palette accents, in cycle order.
+  const ACCENTS = ['#00B3E9', '#50B848', '#F8972A', '#A1238F', '#EF3B24', '#15769A'];
+
+  function hexToHsl(hex){
+    const r = parseInt(hex.slice(1,3),16)/255,
+          g = parseInt(hex.slice(3,5),16)/255,
+          b = parseInt(hex.slice(5,7),16)/255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h = 0, sV = 0;
+    const l = (max + min) / 2;
+    if(max !== min){
+      const d = max - min;
+      sV = l > .5 ? d / (2 - max - min) : d / (max + min);
+      switch(max){
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        default: h = (r - g) / d + 4;
+      }
+      h *= 60;
+    }
+    return { h, s: sV * 100, l: l * 100 };
+  }
+
+  // Office-style variation: each repeat of the 6-accent cycle gets a different
+  // shade (lightness) and a slight hue rotation, so every box color is unique.
+  function groupColor(i){
+    const base = hexToHsl(ACCENTS[i % ACCENTS.length]);
+    const cycle = Math.floor(i / ACCENTS.length);
+    const h = (base.h + cycle * 14) % 360;                       // hue: rotate per cycle
+    const sV = Math.max(35, base.s - cycle * 8);                 // saturation: ease off
+    const shades = [0, -14, +12, -24, +20];                      // lightness deltas per cycle
+    const l = Math.min(72, Math.max(22, base.l + shades[cycle % shades.length]));
+    return {
+      border: 'hsl(' + h + ',' + sV + '%,' + l + '%)',
+      bg:     'hsl(' + h + ',' + Math.min(sV, 70) + '%, 94%)'    // pale tint of the same hue
+    };
+  }
+
+  // (Re)paint every box top-to-bottom; called whenever rows are added or removed.
+  function colorizeRows(){
+    [...groupsEl.querySelectorAll('.group-row')].forEach((row, i) => {
+      const c = groupColor(i);
+      row.style.background = c.bg;
+      row.style.borderLeftColor = c.border;
+    });
+  }
+
+  // ---------- time helpers ----------
+  function fmt(min){
+    min = ((min % 1440) + 1440) % 1440;
+    const h = String(Math.floor(min / 60)).padStart(2,'0');
+    const m = String(min % 60).padStart(2,'0');
+    return h + ':' + m;
+  }
+  function fmt12(min){
+    min = ((min % 1440) + 1440) % 1440;
+    let h = Math.floor(min / 60);
+    const m = String(min % 60).padStart(2,'0');
+    const ap = h < 12 ? 'AM' : 'PM';
+    h = h % 12; if(h === 0) h = 12;
+    return h + ':' + m + ' ' + ap;
+  }
+
+  // Build the option list for a constraint select: 5-minute steps, inclusive.
+  function fillTimeSelect(sel, fromMin, toMin){
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = '\u2014 no preference \u2014';
+    sel.appendChild(blank);
+    for(let t = fromMin; t <= toMin; t += 5){
+      const o = document.createElement('option');
+      o.value = String(t);
+      o.textContent = fmt12(t);
+      sel.appendChild(o);
+    }
+  }
+
+  // ---------- group rows ----------
+  function addRow(value){
+    const row = document.createElement('div');
+    row.className = 'group-row';
+
+    const top = document.createElement('div');
+    top.className = 'group-top';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Enter group name';
+    input.value = value || '';
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = '\u2715';
+    del.title = 'Remove this group';
+    del.setAttribute('aria-label','Remove this group');
+    del.addEventListener('click', () => { row.remove(); colorizeRows(); });
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(row === groupsEl.lastElementChild){ addRow(''); }
+        const next = row.nextElementSibling;
+        if(next) next.querySelector('input').focus();
+        else groupsEl.lastElementChild.querySelector('input').focus();
+      }
+    });
+    top.appendChild(input);
+    top.appendChild(del);
+
+    const cons = document.createElement('div');
+    cons.className = 'group-constraints';
+
+    const beforeWrap = document.createElement('div');
+    beforeWrap.className = 'constraint';
+    const beforeLabel = document.createElement('label');
+    beforeLabel.textContent = 'Should present before:';
+    const beforeSel = document.createElement('select');
+    beforeSel.className = 'before-sel';
+    fillTimeSelect(beforeSel, 8*60, 21*60);          // 8:00 AM – 9:00 PM
+    beforeWrap.appendChild(beforeLabel);
+    beforeWrap.appendChild(beforeSel);
+
+    const afterWrap = document.createElement('div');
+    afterWrap.className = 'constraint';
+    const afterLabel = document.createElement('label');
+    afterLabel.textContent = 'Should present after:';
+    const afterSel = document.createElement('select');
+    afterSel.className = 'after-sel';
+    fillTimeSelect(afterSel, 8*60, 20*60);           // 8:00 AM – 8:00 PM
+    afterWrap.appendChild(afterLabel);
+    afterWrap.appendChild(afterSel);
+
+    // gold highlight when a preference is set
+    [beforeSel, afterSel].forEach(sel => {
+      sel.addEventListener('change', () => sel.classList.toggle('set', sel.value !== ''));
+    });
+
+    cons.appendChild(beforeWrap);
+    cons.appendChild(afterWrap);
+    row.appendChild(top);
+    row.appendChild(cons);
+    groupsEl.appendChild(row);
+    colorizeRows();
+    return input;
+  }
+
+  for(let i = 0; i < DEFAULTS.rows; i++) addRow('');
+  document.getElementById('addGroup').addEventListener('click', () => addRow('').focus());
+
+  // Start time: 5-minute steps from 8:00 AM to 8:00 PM (no blank option; a start time is required)
+  const startSel = document.getElementById('startTime');
+  for(let t = 8*60; t <= 20*60; t += 5){
+    const o = document.createElement('option');
+    o.value = String(t);
+    o.textContent = fmt12(t);
+    startSel.appendChild(o);
+  }
+  startSel.value = String(DEFAULTS.start);
+
+  // ---------- core logic ----------
+  function readGroups(){
+    return [...groupsEl.querySelectorAll('.group-row')]
+      .map(row => ({
+        name:   row.querySelector('input').value.trim(),
+        before: row.querySelector('.before-sel').value === '' ? null : parseInt(row.querySelector('.before-sel').value, 10),
+        after:  row.querySelector('.after-sel').value  === '' ? null : parseInt(row.querySelector('.after-sel').value, 10)
+      }))
+      .filter(g => g.name);
+  }
+
+  function readTiming(){
+    const startMin = parseInt(document.getElementById('startTime').value, 10);
+    if(isNaN(startMin)){ showError('Please set a start time.'); return null; }
+    const dur = parseInt(document.getElementById('duration').value, 10);
+    if(!dur || dur < 5 || dur % 5 !== 0){ showError('Presentation time per group must be at least 5 minutes, in 5-minute steps.'); return null; }
+    const brk = parseInt(document.getElementById('breakLen').value, 10);
+    if(isNaN(brk) || brk < 0 || brk % 5 !== 0){ showError('Break duration must be 0 or more minutes, in 5-minute steps.'); return null; }
+    return { startMin, dur, brk };
+  }
+
+  // Slot times are fixed by timing + n, regardless of which group fills which slot.
+  function computeSlots(n, timing){
+    let t = timing.startMin;
+    const breakAfter = Math.ceil(n / 2);
+    const slots = [];
+    let breakStart = null;
+    for(let i = 0; i < n; i++){
+      if(timing.brk > 0 && i === breakAfter){
+        breakStart = t;
+        t += timing.brk;
+      }
+      slots.push({ start: t, end: t + timing.dur });
+      t += timing.dur;
+    }
+    return { slots, breakAfter, breakStart, endTime: t };
+  }
+
+  function fits(group, slot){
+    if(group.after  !== null && slot.start < group.after)  return false;
+    if(group.before !== null && slot.end   > group.before) return false;
+    return true;
+  }
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Randomized backtracking: assign a random group to each slot in order,
+  // honoring every group's time requests. Returns ordered array or null.
+  function drawConstrainedOrder(groups, slots){
+    const n = groups.length;
+    const used = new Array(n).fill(false);
+    const orderOut = new Array(n);
+    let nodes = 0;
+    const LIMIT = 200000; // safety cap; far more than enough for classroom sizes
+
+    function solve(slotIdx){
+      if(++nodes > LIMIT) return false;
+      if(slotIdx === n) return true;
+      const candidates = shuffle(
+        groups.map((g, i) => i).filter(i => !used[i] && fits(groups[i], slots[slotIdx]))
+      );
+      for(const i of candidates){
+        used[i] = true;
+        orderOut[slotIdx] = groups[i];
+        if(solve(slotIdx + 1)) return true;
+        used[i] = false;
+      }
+      return false;
+    }
+    return solve(0) ? orderOut : null;
+  }
+
+  // ---------- rendering ----------
+  function showError(msg){ errorEl.textContent = msg; errorEl.style.display = 'block'; }
+  function showWarning(msg){ warnEl.textContent = msg; warnEl.style.display = 'block'; }
+  function clearNotices(){ errorEl.style.display = 'none'; warnEl.style.display = 'none'; }
+
+  function constraintBadge(g){
+    const parts = [];
+    if(g.after  !== null) parts.push('after '  + fmt12(g.after));
+    if(g.before !== null) parts.push('before ' + fmt12(g.before));
+    return parts.join(', ');
+  }
+
+  function buildSchedule(order, timing){
+    const { slots, breakAfter, breakStart } = computeSlots(order.length, timing);
+    tbody.innerHTML = '';
+    const lines = [];
+    const violations = [];
+
+    order.forEach((g, idx) => {
+      if(breakStart !== null && idx === breakAfter){
+        const tr = document.createElement('tr');
+        tr.className = 'break-row';
+        tr.innerHTML = '<td>\u2014</td><td>Break</td><td>' + fmt(breakStart) + '</td><td>' + fmt(breakStart + timing.brk) + '</td>';
+        tbody.appendChild(tr);
+        lines.push('Break: ' + fmt(breakStart) + ' \u2013 ' + fmt(breakStart + timing.brk));
+      }
+      const slot = slots[idx];
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td class="order">' + (idx + 1) + '</td><td></td><td>' + fmt(slot.start) + '</td><td>' + fmt(slot.end) + '</td>';
+      const nameCell = tr.children[1];
+      nameCell.textContent = g.name; // safe insertion of user text
+      const badge = constraintBadge(g);
+      if(badge){
+        const b = document.createElement('span');
+        b.className = 'badge';
+        b.textContent = badge;
+        nameCell.appendChild(b);
+      }
+      if(!fits(g, slot)) violations.push(g.name);
+      tbody.appendChild(tr);
+      lines.push((idx + 1) + '. ' + g.name + ': ' + fmt(slot.start) + ' \u2013 ' + fmt(slot.end));
+    });
+
+    const endTime = slots[slots.length - 1].end;
+    metaEl.textContent = order.length + ' groups \u00b7 ' + timing.dur + ' min each \u00b7 break ' +
+      timing.brk + ' min after group ' + breakAfter + ' \u00b7 ends at ' + fmt(endTime);
+    lastText = 'Presentation order (start ' + fmt(timing.startMin) + ')\n' + lines.join('\n') +
+      '\nEnd: ' + fmt(endTime);
+    result.style.display = 'block';
+    result.scrollIntoView({behavior:'smooth', block:'start'});
+    return violations;
+  }
+
+  // ---------- buttons ----------
+  document.getElementById('generateBtn').addEventListener('click', () => {
+    clearNotices();
+    const groups = readGroups();
+    if(groups.length < 2) return showError('Please enter at least two group names.');
+    for(const g of groups){
+      if(g.before !== null && g.after !== null && g.after + 1 > g.before)
+        return showError('"' + g.name + '" has impossible time requests: it cannot present after ' +
+          fmt12(g.after) + ' and still finish before ' + fmt12(g.before) + '.');
+    }
+    const timing = readTiming();
+    if(!timing) return;
+
+    const { slots } = computeSlots(groups.length, timing);
+    const order = drawConstrainedOrder(groups, slots);
+    if(!order){
+      return showError('No order can satisfy all the time requests with these timing options. ' +
+        'Try relaxing a "before"/"after" request, changing the start time, or shortening the presentations.');
+    }
+    lastOrder = order;
+    lastTiming = timing;
+    rescheduleBtn.disabled = false;
+    buildSchedule(order, timing);
+  });
+
+  rescheduleBtn.addEventListener('click', () => {
+    clearNotices();
+    if(!lastOrder) return showError('Generate an order first \u2014 then you can reschedule it with new timing options.');
+    const timing = readTiming();
+    if(!timing) return;
+    lastTiming = timing;
+    const violations = buildSchedule(lastOrder, timing);
+    if(violations.length){
+      showWarning('Heads up: with the new timing, the kept order no longer satisfies the time requests of: ' +
+        violations.join(', ') + '. Press Generate to draw a new order that does.');
+    }
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    clearNotices();
+    groupsEl.innerHTML = '';
+    for(let i = 0; i < DEFAULTS.rows; i++) addRow('');
+    document.getElementById('startTime').value = String(DEFAULTS.start);
+    document.getElementById('duration').value  = DEFAULTS.duration;
+    document.getElementById('breakLen').value  = DEFAULTS.breakLen;
+    lastOrder = null;
+    lastTiming = null;
+    lastText = '';
+    rescheduleBtn.disabled = true;
+    result.style.display = 'none';
+    tbody.innerHTML = '';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    groupsEl.querySelector('input').focus();
+  });
+
+  // ---------- PNG export ----------
+  // CRC-32 (needed to write a valid pHYs chunk into the PNG)
+  const CRC_TABLE = (() => {
+    const t = new Uint32Array(256);
+    for(let n = 0; n < 256; n++){
+      let c = n;
+      for(let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes){
+    let c = 0xFFFFFFFF;
+    for(let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ 0xFFFFFFFF) >>> 0;
+  }
+  // Insert a pHYs chunk after IHDR so image software reports the intended DPI.
+  function setPngDpi(buffer, dpi){
+    const ppm = Math.round(dpi / 0.0254);           // pixels per meter
+    const src = new Uint8Array(buffer);
+    const chunk = new Uint8Array(21);               // 4 len + 4 "pHYs" + 9 data + 4 crc
+    const dv = new DataView(chunk.buffer);
+    dv.setUint32(0, 9);
+    chunk[4] = 0x70; chunk[5] = 0x48; chunk[6] = 0x59; chunk[7] = 0x73; // "pHYs"
+    dv.setUint32(8, ppm);
+    dv.setUint32(12, ppm);
+    chunk[16] = 1;                                  // unit: meter
+    dv.setUint32(17, crc32(chunk.subarray(4, 17)));
+    const IHDR_END = 33;                            // 8 sig + 25 IHDR chunk
+    const out = new Uint8Array(src.length + chunk.length);
+    out.set(src.subarray(0, IHDR_END), 0);
+    out.set(chunk, IHDR_END);
+    out.set(src.subarray(IHDR_END), IHDR_END + chunk.length);
+    return out;
+  }
+
+  // Draws the current schedule onto a canvas and downloads it as a PNG.
+  function generatePNG(){
+    if(!lastOrder || !lastTiming) return showError('Generate a schedule first.');
+    const order = lastOrder, timing = lastTiming;
+    const { slots, breakAfter, breakStart } = computeSlots(order.length, timing);
+
+    // Build the row model (presentation rows + optional break row)
+    const rows = [];
+    order.forEach((g, idx) => {
+      if(breakStart !== null && idx === breakAfter){
+        rows.push({ type:'break', from:fmt(breakStart), to:fmt(breakStart + timing.brk) });
+      }
+      rows.push({
+        type:'group', num:String(idx + 1), name:g.name,
+        badge:constraintBadge(g),
+        from:fmt(slots[idx].start), to:fmt(slots[idx].end)
+      });
+    });
+    const endTime = slots[slots.length - 1].end;
+
+    const DPI = 600;
+    const SCALE = DPI / 96;               // 96 css-px per inch -> 600 dpi output
+    const W = 820;
+    const headerH = 162, rowH = 44, footerH = 56, pad = 36;
+    const H = headerH + rows.length * rowH + footerH + pad;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W * SCALE; canvas.height = H * SCALE;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+
+    const SERIF = '"Noto Serif",Pretendard,serif';
+    const SANS  = 'Inter,Pretendard,sans-serif';
+
+    // background
+    ctx.fillStyle = '#F5F5F5';
+    ctx.fillRect(0, 0, W, H);
+
+    // header
+    ctx.fillStyle = '#F8972A';
+    ctx.font = '600 11px ' + SANS;
+    ctx.fillText('F A I R   A N D   F L E X I B L E', pad, 42);
+    ctx.fillStyle = '#231F20';
+    ctx.font = '700 28px ' + SERIF;
+    ctx.fillText('Presentation Schedule', pad, 74);
+    ctx.fillStyle = '#4E6470';
+    ctx.font = '400 13px ' + SANS;
+    ctx.fillText(order.length + ' groups \u00b7 ' + timing.dur + ' min each \u00b7 break ' +
+      timing.brk + ' min \u00b7 starts ' + fmt(timing.startMin) + ' \u00b7 ends ' + fmt(endTime), pad, 96);
+    ctx.strokeStyle = '#231F20';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, headerH - 18); ctx.lineTo(W - pad, headerH - 18); ctx.stroke();
+
+    // column x-positions
+    const xNum = pad, xName = pad + 50, xFrom = W - 220, xTo = W - 120;
+
+    // column headings
+    ctx.fillStyle = '#4E6470';
+    ctx.font = '600 10px ' + SANS;
+    ctx.fillText('#', xNum, headerH - 28);
+    ctx.fillText('GROUP', xName, headerH - 28);
+    ctx.fillText('FROM', xFrom, headerH - 28);
+    ctx.fillText('TO', xTo, headerH - 28);
+
+    // rows
+    rows.forEach((r, i) => {
+      const yTop = headerH + i * rowH;
+      const yText = yTop + rowH / 2 + 5;
+      if(r.type === 'break'){
+        ctx.fillStyle = '#FDEBD7';
+        ctx.fillRect(pad - 8, yTop + 4, W - 2 * pad + 16, rowH - 8);
+        ctx.fillStyle = '#F8972A';
+        ctx.font = 'italic 600 15px ' + SANS;
+        ctx.fillText('Break', xName, yText);
+        ctx.fillText(r.from, xFrom, yText);
+        ctx.fillText(r.to, xTo, yText);
+      } else {
+        ctx.fillStyle = '#15769A';
+        ctx.font = '700 16px ' + SERIF;
+        ctx.fillText(r.num, xNum, yText);
+        ctx.fillStyle = '#231F20';
+        ctx.font = '400 15px ' + SANS;
+        // truncate long names so they never collide with the time columns
+        let name = r.name;
+        const maxW = xFrom - xName - (r.badge ? 150 : 20);
+        while(name.length > 1 && ctx.measureText(name).width > maxW) name = name.slice(0, -1);
+        if(name !== r.name) name = name.slice(0, -1) + '\u2026';
+        ctx.fillText(name, xName, yText);
+        const nameW = ctx.measureText(name).width;
+        if(r.badge){
+          ctx.fillStyle = '#F8972A';
+          ctx.font = '400 11px ' + SANS;
+          ctx.fillText(r.badge, xName + nameW + 12, yText);
+        }
+        ctx.fillStyle = '#231F20';
+        ctx.font = '400 15px ' + SANS;
+        ctx.fillText(r.from, xFrom, yText);
+        ctx.fillText(r.to, xTo, yText);
+      }
+      // hairline divider
+      ctx.strokeStyle = '#D9DEE1';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad - 8, yTop + rowH); ctx.lineTo(W - pad + 8, yTop + rowH); ctx.stroke();
+    });
+
+    // footer
+    ctx.fillStyle = '#6E828D';
+    ctx.font = '400 11px ' + SANS;
+    ctx.fillText('Generated ' + new Date().toLocaleString(), pad, H - 26);
+
+    // download (with the 600 dpi flag written into the file)
+    canvas.toBlob(blob => {
+      blob.arrayBuffer().then(buf => {
+        const stamped = new Blob([setPngDpi(buf, DPI)], { type: 'image/png' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(stamped);
+        a.download = 'presentation-schedule.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      });
+    }, 'image/png');
+  }
+
+  document.getElementById('pngBtn').addEventListener('click', () => {
+    clearNotices();
+    // make sure the web fonts are ready before drawing, so the PNG uses them
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(generatePNG);
+    } else {
+      generatePNG();
+    }
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    const btn = this;
+    navigator.clipboard.writeText(lastText).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy as text', 1500);
+    }).catch(() => {
+      window.prompt('Copy the schedule:', lastText);
+    });
+  });
+})();
+</script>
+<p align="right">Created by H. Park<br>
+<img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png" width=141></p>
+</body>
+</html>
