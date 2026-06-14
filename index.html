@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EarthAsks — Public environmental inquiry</title>
 <meta name="description" content="EarthAsks brings your questions about climate, nature, and pollution to the latest research and verified data — explained as cardnews, documents, and live video Q&A.">
-<link rel="canonical" href="https://earthasks.com/">
+<link class="canonical" href="https://earthasks.com/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="EarthAsks — Public environmental inquiry">
 <meta property="og:description" content="Your questions about the triple planetary crisis, answered with verified data. Cardnews, documents, and live video Q&A.">
@@ -150,8 +150,7 @@ h1,h2,h3{text-wrap:balance}
 .card:nth-child(6n+4){--accent:var(--a-cyan)}
 .card:nth-child(6n+5){--accent:var(--a-teal)}
 .card:nth-child(6n+6){--accent:var(--a-magenta)}
-.card__open{display:block;width:100%;border:0;background:none;padding:0;cursor:zoom-in;text-align:left;color:inherit}
-.card__open[data-fallback="1"]{cursor:pointer}
+.card__open{display:block;width:100%;border:0;background:none;padding:0;cursor:pointer;text-align:left;color:inherit;text-decoration:none}
 .card__frame{display:block;position:relative}
 .card__img{width:100%;height:auto;background:var(--c-paper);display:block}
 .card__ph{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.55rem;
@@ -327,7 +326,7 @@ h1,h2,h3{text-wrap:balance}
           </div>
           <a class="col__more" href="https://bsky.app/profile/climate-nature.bsky.social" target="_blank" rel="noopener">Open data&nbsp;↗</a>
         </header>
-        <p class="col__sub">Single-glance infographics on the questions that matter, newest first. Tap a card for the full-resolution image.</p>
+        <p class="col__sub">Single-glance infographics on the questions that matter, newest first. Tap a card to view the original post on Bluesky.</p>
         <div id="cardnews-grid" class="cards" aria-live="polite"></div>
       </section>
 
@@ -475,7 +474,6 @@ const VIDEOS = [];
 (function(){
   "use strict";
   const CHANNEL_ID = "UCLmVOVw-Kuwz1nPMxeb8aww";
-  // Strict constraints setup: Limit rendering size to exactly 3 items
   const MAX_CARDS = 3, MAX_VIDEOS = 3;
   const uploads = "UU" + CHANNEL_ID.slice(2);
 
@@ -488,7 +486,7 @@ const VIDEOS = [];
     const m = String(s).match(/^(\d{4})(?:[-/](\d{1,2}))?(?:[-/](\d{1,2}))?/);
     if(!m) return String(s);
     const y=m[1], mo=m[2]?MONTHS[(+m[2])-1]:null, d=m[3]?(+m[3]):null;
-    if(d&&mo) return d+" "+mo+" "+y;
+    if(d&&mo) return mo+" "+d+", "+y;
     if(mo) return mo+" "+y;
     return y;
   }
@@ -513,7 +511,7 @@ const VIDEOS = [];
     cards.forEach((c,i)=>{
       const art=document.createElement("article"); art.className="card";
       art.innerHTML=
-        '<button class="card__open" type="button" data-i="'+i+'" aria-label="View cardnews: '+esc(c.title)+'">'+
+        '<a class="card__open" href="'+esc(c.link||"#")+'" target="_blank" rel="noopener" aria-label="Open Bluesky post: '+esc(c.title)+'">'+
           '<span class="card__frame">'+
             '<img class="card__img" alt="" loading="lazy" decoding="async">'+
             '<span class="card__ph" hidden>'+
@@ -521,7 +519,7 @@ const VIDEOS = [];
               '<span class="card__ph-go">Open cardnews \u2197</span>'+
             '</span>'+
           '</span>'+
-        '</button>'+
+        '</a>'+
         '<div class="card__meta">'+
           '<h3 class="card__title">'+esc(c.title)+'</h3>'+
           (c.source?'<p class="card__src">'+esc(c.source)+'</p>':'')+
@@ -529,20 +527,13 @@ const VIDEOS = [];
             (c.link?'<a class="card__ext" href="'+esc(c.link)+'" target="_blank" rel="noopener">View ↗</a>':'')+
           '</p>'+
         '</div>';
-      const img=art.querySelector(".card__img"), ph=art.querySelector(".card__ph"), btn=art.querySelector(".card__open");
-      img.addEventListener("error",()=>{ img.style.display="none"; ph.hidden=false; btn.dataset.fallback="1"; });
+      const img=art.querySelector(".card__img"), ph=art.querySelector(".card__ph");
+      img.addEventListener("error",()=>{ img.style.display="none"; ph.hidden=false; });
       img.addEventListener("load",()=>{ ph.hidden=true; img.style.display="block"; });
       if(c.image){ img.src=c.image; } else { img.dispatchEvent(new Event("error")); }
       grid.appendChild(art);
     });
   }
-
-  grid.addEventListener("click",e=>{
-    const b=e.target.closest(".card__open"); if(!b||!grid.contains(b)) return;
-    const i=+b.dataset.i, c=cards[i]; if(!c) return;
-    if(b.dataset.fallback==="1"){ if(c.link) window.open(c.link,"_blank","noopener"); return; }
-    openLightbox(i);
-  });
 
   /* ---- Lightbox Framework ---- */
   const lb=$("#lightbox"), lbImg=$("#lb-img"), lbTitle=$("#lb-title"), lbDate=$("#lb-date"), lbFull=$("#lb-full");
@@ -633,7 +624,6 @@ const VIDEOS = [];
       if (!response.ok) return null;
       const data = await response.json();
       const feedItems = data.feed || [];
-      // Exclude replies to ensure card integrity
       const primaryPosts = feedItems.filter(item => !item.reply).slice(0, MAX_CARDS);
       
       return primaryPosts.map(item => {
@@ -690,7 +680,6 @@ const VIDEOS = [];
   function MAX_VISUAL_LIMIT_CHECK() { return MAX_VIDEOS; }
 
   async function initializeWebspace() {
-    // Pipeline 1: Cardnews Resolvers
     const liveCards = await fetchBlueskyFeed();
     if (liveCards && liveCards.length > 0) {
       cards = liveCards;
@@ -699,7 +688,6 @@ const VIDEOS = [];
     }
     renderCards();
 
-    // Pipeline 2: Video Feed Resolvers
     const liveVideos = await fetchYouTubeFeed();
     if (liveVideos && liveVideos.length > 0) {
       vids = liveVideos;
@@ -710,7 +698,6 @@ const VIDEOS = [];
     renderVideos();
   }
 
-  // Load and runtime execution entrypoint
   initializeWebspace();
 
   /* ---- Reveal on scroll handling ---- */
