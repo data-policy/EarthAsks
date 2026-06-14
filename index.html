@@ -11,11 +11,11 @@
 <meta property="og:description" content="Your questions about the triple planetary crisis, answered with verified data. Cardnews, documents, and live video Q&A.">
 <meta property="og:url" content="https://earthasks.com/">
 
-<!-- Fonts (no install needed): EB Garamond + Noto Sans SemiCondensed + Noto Sans KR via Google Fonts -->
+<!-- Fonts (no install needed): EB Garamond + Noto Sans SemiCondensed (now incl. ITALIC) + Noto Sans KR via Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans:wdth,wght@87.5,400;87.5,500;87.5,600;87.5,700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans:ital,wdth,wght@0,87.5,400;0,87.5,500;0,87.5,600;0,87.5,700;1,87.5,400;1,87.5,500;1,87.5,600;1,87.5,700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 /* Mona Sans Mono (GitHub, OFL) — served from jsDelivr, no install needed */
@@ -52,6 +52,8 @@
 html{-webkit-text-size-adjust:100%}
 @media (prefers-reduced-motion: no-preference){ html{scroll-behavior:smooth} }
 body{margin:0;background:var(--c-paper);color:var(--c-ink);font-family:var(--font-sans);font-stretch:semi-condensed;
+  /* Use real italic faces only; never let the browser fake (oblique) an italic. Synthetic weight stays on as a safety net. */
+  font-synthesis:weight;
   font-size:clamp(1rem, 0.97rem + 0.2vw, 1.0625rem);line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 a{color:var(--link);text-decoration-thickness:1px;text-underline-offset:2px}
 a:visited{color:var(--link-visited)}
@@ -244,6 +246,16 @@ h1,h2,h3{text-wrap:balance}
   font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;color:#8b969c;padding-block:1.2rem}
 .foot__meta span b{color:#b9c2c7;font-weight:400}
 
+/* Credit line: brand icons (Facebook, Instagram) sit inline, immediately before the CC button */
+.foot__credit{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.foot__icons{display:inline-flex;align-items:center;gap:.55rem;flex-wrap:nowrap}
+.foot__social{display:inline-flex;align-items:center;justify-content:center;color:#b9c2c7;line-height:0;transition:color .15s ease}
+.foot__social:hover{color:#fff}
+.foot__social:visited{color:#b9c2c7}
+.foot__social svg{width:20px;height:20px;display:block}
+.foot__cc{display:inline-flex;align-items:center;line-height:0}
+.foot__cc img{height:22px;width:auto;display:block}
+
 /* ---- Lightbox ---- */
 .lb{position:fixed;inset:0;z-index:100;display:none;background:rgba(20,18,18,.93);padding:clamp(.8rem,3vw,2.5rem);place-items:center}
 .lb.open{display:grid}
@@ -314,20 +326,20 @@ h1,h2,h3{text-wrap:balance}
 
   <div class="wrap">
     <div class="streams">
-      <!-- LEFT: Cardnews -->
+      <!-- LEFT: Cardnews (auto-pulled from Bluesky) -->
       <section class="col" id="cardnews" aria-labelledby="cardnews-title" data-reveal>
         <header class="col__head">
           <div>
             <p class="kicker">Visual explainers</p>
             <h2 class="col__title" id="cardnews-title">Cardnews</h2>
           </div>
-          <a class="col__more" href="https://github.com/data-policy/EarthAsks" target="_blank" rel="noopener">Open data&nbsp;↗</a>
+          <a class="col__more" href="https://bsky.app/profile/climate-nature.bsky.social" target="_blank" rel="noopener">On Bluesky&nbsp;↗</a>
         </header>
-        <p class="col__sub">Single-glance infographics on the questions that matter, newest first. Tap a card for the full-resolution image.</p>
+        <p class="col__sub">The three newest image posts from the EarthAsks Bluesky feed. Tap a card for the full-resolution image.</p>
         <div id="cardnews-grid" class="cards" aria-live="polite"></div>
       </section>
 
-      <!-- RIGHT: Videos -->
+      <!-- RIGHT: Videos (auto-pulled from YouTube) -->
       <section class="col" id="videos" aria-labelledby="videos-title" data-reveal>
         <header class="col__head">
           <div>
@@ -380,7 +392,7 @@ h1,h2,h3{text-wrap:balance}
       <h4>Follow</h4>
       <ul>
         <li><a href="https://www.youtube.com/@EarthAsks" target="_blank" rel="noopener">YouTube channel ↗</a></li>
-        <li><a href="https://www.youtube.com/@EarthAsks?sub_confirmation=1" target="_blank" rel="noopener">Subscribe ↗</a></li>
+        <li><a href="https://bsky.app/profile/climate-nature.bsky.social" target="_blank" rel="noopener">Bluesky ↗</a></li>
       </ul>
     </div>
     <div>
@@ -394,7 +406,20 @@ h1,h2,h3{text-wrap:balance}
   <div class="foot__bar">
     <div class="wrap foot__meta">
       <span><b>© <span id="year">2026</span> EarthAsks · earthasks.com</b></span>
-      <span><b>Created by H. Park&nbsp;&nbsp;<img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png" width=88></b></span>
+      <span class="foot__credit">
+        <b>Created by H. Park</b>
+        <span class="foot__icons">
+          <a class="foot__social" href="https://www.facebook.com/parkhun" target="_blank" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z"/></svg>
+          </a>
+          <a class="foot__social" href="https://www.instagram.com/iccakorea/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.31-1.46.72-2.13 1.38C1.35 2.68.94 3.35.63 4.14.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13-.67-.66-1.34-1.07-2.13-1.38-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 12 18.16 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.41-10.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/></svg>
+          </a>
+          <a class="foot__cc" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" aria-label="Creative Commons Attribution 4.0 International License">
+            <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png" width="88" alt="CC BY 4.0">
+          </a>
+        </span>
+      </span>
     </div>
   </div>
 </footer>
@@ -418,28 +443,31 @@ h1,h2,h3{text-wrap:balance}
     <div class="state">
       <h3>Turn on JavaScript to see the latest cardnews and videos</h3>
       <p>This page loads the newest content live. In the meantime, go straight to the sources:</p>
-      <p><a href="https://www.youtube.com/@EarthAsks">YouTube channel ↗</a> &nbsp;·&nbsp; <a href="https://github.com/data-policy/EarthAsks">Data repository ↗</a></p>
+      <p><a href="https://www.youtube.com/@EarthAsks">YouTube channel ↗</a> &nbsp;·&nbsp; <a href="https://bsky.app/profile/climate-nature.bsky.social">Bluesky ↗</a> &nbsp;·&nbsp; <a href="https://github.com/data-policy/EarthAsks">Data repository ↗</a></p>
     </div>
   </div>
 </noscript>
 
 <script>
 /* ============================================================================
-   ███  EDIT THIS SECTION TO ADD CONTENT  ███
+   ███  CONTENT IS NOW AUTOMATIC  ███
    ----------------------------------------------------------------------------
-   HOW TO ADD A NEW CARDNEWS OR DOCUMENT:
-     1. Put the NEWEST item FIRST.
-     2. Copy one { ... } block, paste it above the others, change the values.
-     3. Keep the comma after each } (except you may omit it after the last one).
-     4. Save / commit. That's it.
+   • CARDNEWS  — pulled live from your Bluesky profile (BSKY_HANDLE below).
+                 The three newest posts that contain an image are shown.
+                 Just post a cardnews image on Bluesky and it appears here.
+   • VIDEOS    — pulled live from your YouTube channel RSS (CHANNEL_ID below).
+                 The three newest uploads are shown; the player opens the newest.
+                 Just upload to YouTube and it appears here.
+   • DOCUMENTS — still edited by hand in the DOCUMENTS array below
+                 (newest first; copy a { } block, change the values, save).
 
-   IMAGE TIP: "image" can be a direct image link OR a file you upload to this
-   repo's  /cardnews  folder, e.g.  image: "cardnews/2026-06-gdp.png".
-   Uploading the image to the repo is the most reliable way to display it.
-   If a link is a post (not a raw image), the card still shows the title and a
-   clickable "Open cardnews" button automatically.
+   The CARDNEWS / VIDEOS arrays below are OPTIONAL:
+     - CARDNEWS acts as a FALLBACK shown only if Bluesky can't be reached.
+     - VIDEOS, if you add entries, PINS those specific clips instead of
+       auto-pulling. Leave it as []  to auto-pull the newest uploads.
    ============================================================================ */
 
+/* Fallback cardnews — shown only if the live Bluesky feed is unavailable. */
 const CARDNEWS = [
   {
     title:  "Annual Real GDP Growth in Selected G20 Economies and OECD, 2018–2027",
@@ -476,8 +504,8 @@ const DOCUMENTS = [
   }
 ];
 
-/* Optional — featured videos. Leave as []  to just show the newest uploads.
-   To pin specific clips, add e.g.  { id: "VIDEO_ID", title: "…", date: "2026-06-01" }  */
+/* Optional — PIN specific videos. Leave as []  to auto-pull the newest uploads.
+   To pin clips, add e.g.  { id: "VIDEO_ID", title: "…", date: "2026-06-01" }  */
 const VIDEOS = [];
 
 /* ===========================  END OF EDIT SECTION  ========================== */
@@ -485,9 +513,12 @@ const VIDEOS = [];
 
 (function(){
   "use strict";
-  const CHANNEL_ID = "UCLmVOVw-Kuwz1nPMxeb8aww";
-  const MAX_CARDS = 8, MAX_VIDEOS = 8;
-  const uploads = "UU" + CHANNEL_ID.slice(2);
+
+  /* ----- Sources ----- */
+  const CHANNEL_ID  = "UCLmVOVw-Kuwz1nPMxeb8aww";          // YouTube @EarthAsks
+  const BSKY_HANDLE = "climate-nature.bsky.social";        // Bluesky profile
+  const CARD_COUNT  = 3, VID_COUNT = 3;                    // show the latest 3 of each
+  const uploads     = "UU" + CHANNEL_ID.slice(2);          // channel "uploads" playlist
 
   const $ = (s,r)=> (r||document).querySelector(s);
   const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -503,19 +534,105 @@ const VIDEOS = [];
   }
   document.getElementById("year").textContent = new Date().getFullYear();
 
-  /* ---------------- Cardnews ---------------- */
-  const cards = Array.isArray(CARDNEWS) ? CARDNEWS.filter(c=>c&&c.title).slice(0,MAX_CARDS) : [];
+  /* Fetch plain text through a public CORS proxy (needed for YouTube's RSS,
+     which does not send CORS headers). Tries a few proxies in order. */
+  async function fetchViaProxy(url){
+    const proxies = [
+      u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+      u => "https://corsproxy.io/?url="          + encodeURIComponent(u),
+      u => "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(u)
+    ];
+    let lastErr;
+    for(const make of proxies){
+      try{
+        const r = await fetch(make(url), {redirect:"follow"});
+        if(r.ok){ const t = await r.text(); if(t && t.trim()) return t; }
+        else lastErr = new Error("HTTP "+r.status);
+      }catch(e){ lastErr = e; }
+    }
+    throw lastErr || new Error("All proxies failed");
+  }
+
+  /* ===================================================================== */
+  /*  CARDNEWS  — live from Bluesky                                         */
+  /* ===================================================================== */
+  let cards = [];
   const grid = $("#cardnews-grid");
 
-  function emptyCards(){
+  function loadingCards(){
     const d=document.createElement("div"); d.className="state";
-    d.innerHTML='<h3>The first cards are on their way</h3>'+
-      '<p>Cardnews appear here as soon as they\u2019re added. Open this page\u2019s code, find the EDIT section, and add an entry.</p>'+
-      '<a href="https://github.com/data-policy/EarthAsks" target="_blank" rel="noopener">Open the repository \u2197</a>';
+    d.innerHTML='<h3>Loading the latest cardnews…</h3>'+
+      '<p>Fetching the newest image posts from the EarthAsks Bluesky feed.</p>';
     return d;
   }
+  function emptyCards(){
+    const d=document.createElement("div"); d.className="state";
+    d.innerHTML='<h3>No cardnews to show yet</h3>'+
+      '<p>Image posts from Bluesky appear here automatically.</p>'+
+      '<a href="https://bsky.app/profile/'+esc(BSKY_HANDLE)+'" target="_blank" rel="noopener">Open the Bluesky profile \u2197</a>';
+    return d;
+  }
+
+  /* Pull the first usable image out of a Bluesky post embed (handles plain
+     image posts, quote-posts with media, external link cards, and video). */
+  function imageFromEmbed(embed){
+    if(!embed) return null;
+    const t = embed.$type || "";
+    if(/embed\.images/.test(t) && Array.isArray(embed.images) && embed.images.length){
+      const im = embed.images[0];
+      return { url: im.fullsize || im.thumb, alt: im.alt || "" };
+    }
+    if(/embed\.recordWithMedia/.test(t) && embed.media){
+      return imageFromEmbed(embed.media);
+    }
+    if(/embed\.external/.test(t) && embed.external && embed.external.thumb){
+      return { url: embed.external.thumb, alt: embed.external.title || "" };
+    }
+    if(/embed\.video/.test(t) && embed.thumbnail){
+      return { url: embed.thumbnail, alt: "" };
+    }
+    return null;
+  }
+
+  function blueskyToCards(feed){
+    const out = [];
+    for(const item of feed){
+      if(out.length >= CARD_COUNT) break;
+      const post = item && item.post;
+      if(!post) continue;
+      if(item.reason) continue;                 // skip reposts/reblogs
+      const img = imageFromEmbed(post.embed);
+      if(!img || !img.url) continue;            // cardnews = posts with an image
+      const rec   = post.record || {};
+      const text  = (rec.text || "").replace(/\s+/g," ").trim();
+      const handle= (post.author && post.author.handle) || BSKY_HANDLE;
+      const rkey  = (post.uri || "").split("/").pop();
+      let title   = text || img.alt || "EarthAsks cardnews";
+      if(title.length > 160) title = title.slice(0,157) + "\u2026";
+      out.push({
+        title:  title,
+        image:  img.url,
+        link:   rkey ? ("https://bsky.app/profile/"+handle+"/post/"+rkey)
+                     : ("https://bsky.app/profile/"+BSKY_HANDLE),
+        source: "@"+handle+" · Bluesky",
+        date:   rec.createdAt ? rec.createdAt.slice(0,10) : ""
+      });
+    }
+    return out;
+  }
+
+  async function fetchBlueskyCards(){
+    const url = "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed"
+      + "?actor=" + encodeURIComponent(BSKY_HANDLE)
+      + "&limit=20&filter=posts_with_media";
+    const r = await fetch(url, { headers:{ accept:"application/json" } });
+    if(!r.ok) throw new Error("Bluesky HTTP " + r.status);
+    const data = await r.json();
+    return blueskyToCards((data && data.feed) || []);
+  }
+
   function renderCards(){
-    grid.innerHTML="";
+    grid.innerHTML = "";
     if(!cards.length){ grid.appendChild(emptyCards()); return; }
     cards.forEach((c,i)=>{
       const art=document.createElement("article"); art.className="card";
@@ -544,15 +661,28 @@ const VIDEOS = [];
       grid.appendChild(art);
     });
   }
+
   grid.addEventListener("click",e=>{
     const b=e.target.closest(".card__open"); if(!b||!grid.contains(b)) return;
     const i=+b.dataset.i, c=cards[i]; if(!c) return;
     if(b.dataset.fallback==="1"){ if(c.link) window.open(c.link,"_blank","noopener"); return; }
     openLightbox(i);
   });
-  renderCards();
 
-  /* ---------------- Lightbox ---------------- */
+  async function initCards(){
+    grid.innerHTML=""; grid.appendChild(loadingCards());
+    let live=[];
+    try{ live = await fetchBlueskyCards(); }catch(e){ live = []; }
+    if(live.length){
+      cards = live;
+    } else {
+      // Bluesky unreachable (or no image posts) → use the manual fallback list.
+      cards = Array.isArray(CARDNEWS) ? CARDNEWS.filter(c=>c&&c.title).slice(0,CARD_COUNT) : [];
+    }
+    renderCards();
+  }
+
+  /* ---------------- Lightbox (uses cards[]) ---------------- */
   const lb=$("#lightbox"), lbImg=$("#lb-img"), lbTitle=$("#lb-title"), lbDate=$("#lb-date"), lbFull=$("#lb-full");
   let lbIndex=0, lastFocus=null;
   function openLightbox(i){
@@ -567,7 +697,7 @@ const VIDEOS = [];
     lbFull.href=c.image||c.link||"#";
   }
   function closeLb(){ lb.classList.remove("open"); document.body.style.overflow=""; if(lastFocus)lastFocus.focus(); }
-  function step(n){ lbIndex=(lbIndex+n+cards.length)%cards.length; showLb(); }
+  function step(n){ if(!cards.length) return; lbIndex=(lbIndex+n+cards.length)%cards.length; showLb(); }
   $("#lb-close").addEventListener("click",closeLb);
   $("#lb-prev").addEventListener("click",()=>step(-1));
   $("#lb-next").addEventListener("click",()=>step(1));
@@ -579,7 +709,9 @@ const VIDEOS = [];
     else if(e.key==="ArrowRight") step(1);
   });
 
-  /* ---------------- Documents ---------------- */
+  /* ===================================================================== */
+  /*  DOCUMENTS  — manual list                                             */
+  /* ===================================================================== */
   const docs = Array.isArray(DOCUMENTS) ? DOCUMENTS.filter(d=>d&&d.title) : [];
   const docList=$("#docs-list");
   if(!docs.length){
@@ -602,18 +734,53 @@ const VIDEOS = [];
     });
   }
 
-  /* ---------------- Videos ---------------- */
+  /* ===================================================================== */
+  /*  VIDEOS  — live from YouTube                                           */
+  /* ===================================================================== */
   const player=$("#player");
   function embedSrc(id){
     const base="https://www.youtube-nocookie.com/embed/";
     return id ? base+encodeURIComponent(id)+"?rel=0&modestbranding=1&list="+uploads
               : base+"videoseries?list="+uploads+"&rel=0&modestbranding=1";
   }
-  const vids = Array.isArray(VIDEOS) ? VIDEOS.filter(v=>v&&(v.id||v.videoId)).slice(0,MAX_VIDEOS) : [];
-  player.src = embedSrc(vids.length ? (vids[0].id||vids[0].videoId) : null);
+  // Show the channel's newest uploads immediately; upgrade to the exact newest
+  // clip (and fill the list) once the RSS feed resolves.
+  player.src = embedSrc(null);
 
-  if(vids.length){
-    const list=$("#video-list");
+  // Find the first descendant element by its local (namespace-stripped) name.
+  function firstByLocal(parent, local){
+    const all = parent.getElementsByTagName("*");
+    for(let i=0;i<all.length;i++){ if(all[i].localName===local) return (all[i].textContent||"").trim(); }
+    return "";
+  }
+
+  function parseYouTube(xml){
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    if(doc.getElementsByTagName("parsererror").length) throw new Error("Invalid RSS");
+    const entries = doc.getElementsByTagName("entry");
+    const vids = [];
+    for(let i=0;i<entries.length;i++){
+      if(vids.length >= VID_COUNT) break;
+      const en = entries[i];
+      const id = firstByLocal(en, "videoId");
+      if(!id) continue;
+      vids.push({
+        id:    id,
+        title: firstByLocal(en, "title"),
+        date:  (firstByLocal(en, "published") || "").slice(0,10)
+      });
+    }
+    return vids;
+  }
+
+  async function fetchYouTubeVideos(){
+    const rss = "https://www.youtube.com/feeds/videos.xml?channel_id=" + CHANNEL_ID;
+    const xml = await fetchViaProxy(rss);
+    return parseYouTube(xml);
+  }
+
+  function renderVideoList(vids){
+    const list=$("#video-list"); list.innerHTML="";
     vids.forEach((v,i)=>{
       const id=v.id||v.videoId;
       const li=document.createElement("li");
@@ -634,6 +801,33 @@ const VIDEOS = [];
     });
   }
 
+  function noVideoNote(){
+    const list=$("#video-list"); list.innerHTML="";
+    const li=document.createElement("li");
+    li.innerHTML='<div class="state" style="margin-top:.4rem">'+
+      '<h3>The player is showing your newest uploads</h3>'+
+      '<p>Individual titles appear here when the feed is reachable.</p>'+
+      '<a href="https://www.youtube.com/@EarthAsks/videos" target="_blank" rel="noopener">All videos \u2197</a></div>';
+    list.appendChild(li);
+  }
+
+  async function initVideos(){
+    // If you pinned clips in VIDEOS, use those; otherwise auto-pull from YouTube.
+    let vids = Array.isArray(VIDEOS)
+      ? VIDEOS.filter(v=>v&&(v.id||v.videoId)).map(v=>({id:v.id||v.videoId,title:v.title,date:v.date})).slice(0,VID_COUNT)
+      : [];
+    if(!vids.length){
+      try{ vids = await fetchYouTubeVideos(); }catch(e){ vids = []; }
+    }
+    if(vids.length){
+      player.src = embedSrc(vids[0].id);   // open the exact newest video
+      renderVideoList(vids);
+    } else {
+      // Feed unreachable: the player still shows newest uploads via the playlist.
+      noVideoNote();
+    }
+  }
+
   /* ---------------- Reveal on scroll ---------------- */
   const reveals=[...document.querySelectorAll("[data-reveal]")];
   if(matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)){
@@ -644,6 +838,10 @@ const VIDEOS = [];
     },{rootMargin:"0px 0px -8% 0px",threshold:.06});
     reveals.forEach(el=>io.observe(el));
   }
+
+  /* ---------------- Go ---------------- */
+  initCards();
+  initVideos();
 })();
 </script>
 </body>
