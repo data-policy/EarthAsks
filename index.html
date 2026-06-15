@@ -362,7 +362,7 @@ h1,h2,h3{text-wrap:balance}
           <p class="kicker">Reports · Assessments · Papers</p>
           <h2 class="sec__title" id="docs-title">Documents</h2>
         </div>
-        <a class="col__more" href="https://github.com/data-policy/EarthAsks" target="_blank" rel="noopener">Open data&nbsp;↗</a>
+        <a class="col__more" href="Documents.html">All documents&nbsp;↗</a>
       </header>
       <p class="sec__sub">Key reports and reference reading behind the questions — newest first.</p>
       <div id="docs-list" class="doclist"></div>
@@ -450,24 +450,7 @@ const CARDNEWS = [
   }
 ];
 
-const DOCUMENTS = [
-  {
-    kind:      "Report",
-    title:     "The Third World Ocean Assessment",
-    titleAlt: "",
-    link:      "https://bit.ly/WOA_III",
-    citation: "United Nations (2026). The Third World Ocean Assessment.",
-    date:      "2026"
-  },
-  {
-    kind:      "Manuscript",
-    title:     "Milestones in Sustainable Development, Climate Change, Biodiversity and Ecosystem Services, and Chemical and Plastic Pollution: A Chronology",
-    titleAlt: "지속가능발전과 전 지구 환경문제의 역사적 이정표",
-    link:      "https://lnkd.in/gmti8nMX",
-    citation: "Park, H. (2026). Updated ed.; adapted and expanded from Park & Kang (2021). Unpublished manuscript.",
-    date:      "2026"
-  }
-];
+/* Documents now live in Documents.html — the page below loads them from there, so this file never needs editing to add a document. */
 
 const VIDEOS = [];
 
@@ -562,28 +545,49 @@ const VIDEOS = [];
     else if(e.key==="ArrowRight") step(1);
   });
 
-  /* ---- Documents Generation ---- */
-  const docs = Array.isArray(DOCUMENTS) ? DOCUMENTS.filter(d=>d&&d.title) : [];
-  const docList=$("#docs-list");
-  if(!docs.length){
+  /* ---- Documents (loaded from Documents.html, so adding a document never requires editing this page) ---- */
+  const DOCS_PAGE = "Documents.html";
+  const MAX_DOCS = 4;
+
+  const docCard = d => {
+    const a=document.createElement("a");
+    a.className="doc"; a.href=d.link||"#"; a.target="_blank"; a.rel="noopener";
+    a.innerHTML=
+      '<span class="doc__kind">'+esc(d.kind||"Document")+'</span>'+
+      '<span class="doc__body">'+
+        '<span class="doc__title">'+esc(d.title)+'</span>'+
+        (d.titleAlt?'<span class="doc__alt" lang="ko">'+esc(d.titleAlt)+'</span>':'')+
+        (d.citation?'<span class="doc__cite">'+esc(d.citation)+'</span>':'')+
+      '</span>'+
+      '<span class="doc__go"><span class="doc__date">'+esc(fmtDate(d.date))+'</span><span class="doc__arrow" aria-hidden="true">↗</span></span>';
+    return a;
+  };
+  const docState = (title,body) => {
     const d=document.createElement("div"); d.className="state";
-    d.innerHTML='<h3>Documents will be listed here</h3><p>Add an entry in the EDIT section of this page\u2019s code.</p>';
-    docList.appendChild(d);
-  } else {
-    docs.forEach(d=>{
-      const a=document.createElement("a");
-      a.className="doc"; a.href=d.link||"#"; a.target="_blank"; a.rel="noopener";
-      a.innerHTML=
-        '<span class="doc__kind">'+esc(d.kind||"Document")+'</span>'+
-        '<span class="doc__body">'+
-          '<span class="doc__title">'+esc(d.title)+'</span>'+
-          (d.titleAlt?'<span class="doc__alt" lang="ko">'+esc(d.titleAlt)+'</span>':'')+
-          (d.citation?'<span class="doc__cite">'+esc(d.citation)+'</span>':'')+
-        '</span>'+
-        '<span class="doc__go"><span class="doc__date">'+esc(fmtDate(d.date))+'</span><span class="doc__arrow" aria-hidden="true">↗</span></span>';
-      docList.appendChild(a);
-    });
+    d.innerHTML='<h3>'+esc(title)+'</h3><p>'+esc(body)+'</p>'+
+      '<a href="'+DOCS_PAGE+'">Open the documents page \u2197</a>';
+    return d;
+  };
+  async function loadDocuments(){
+    const docList=$("#docs-list");
+    try{
+      const res=await fetch(DOCS_PAGE,{cache:"no-cache"});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const dom=new DOMParser().parseFromString(await res.text(),"text/html");
+      const node=dom.getElementById("documents-data");
+      if(!node) throw new Error("data block not found");
+      const list=JSON.parse(node.textContent);
+      const docs=Array.isArray(list)?list.filter(d=>d&&d.title):[];
+      docList.innerHTML="";
+      if(!docs.length){ docList.appendChild(docState("Documents will appear here","Add your first entry on the documents page.")); return; }
+      docs.slice(0,MAX_DOCS).forEach(d=>docList.appendChild(docCard(d)));
+    }catch(e){
+      console.warn("Documents load failed:",e);
+      docList.innerHTML="";
+      docList.appendChild(docState("Latest documents","See the full, up-to-date list on the documents page."));
+    }
   }
+  loadDocuments();
 
   /* ---- Videos & Playlists Embed Engine ---- */
   function embedSrc(id){
