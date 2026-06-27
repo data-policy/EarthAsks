@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Map of population with access to clean cooking fuels and technologies, 2024" />
+  <title>Population with Access to Clean Cooking Fuels and Technologies, 2024 (Percent)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400;1,9..40,500;1,9..40,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: "DM Sans Mono";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("https://fonts.gstatic.com/s/dmmono/v16/aFTU7PB1QTsUX8KYhh0.ttf") format("truetype");
+    }
+    :root {
+      --text: #1f2933;
+      --muted: #5b6570;
+      --panel: rgba(255, 255, 255, 0.94);
+      --border: rgba(31, 41, 51, 0.14);
+      --shadow: 0 10px 30px rgba(31, 41, 51, 0.14);
+      --bg: #ffffff;
+      --water: #c9ddf3;
+      --na: #d3d3d3;
+      --text-font: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --number-font: "DM Sans Mono", "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
+    body {
+      overflow: hidden;
+      color: var(--text);
+      background: var(--bg);
+      font-family: var(--text-font);
+    }
+    em, i, cite, .italic { font-family: var(--text-font); font-style: italic; }
+    .num {
+      font-family: var(--number-font);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+    #map-wrap { position: relative; width: 100vw; height: 100vh; background: var(--bg); }
+    #map { position: absolute; inset: 0; background: var(--bg); }
+    svg { display: block; width: 100%; height: 100%; background: var(--bg); cursor: grab; touch-action: none; }
+    svg:active { cursor: grabbing; }
+    .sphere { fill: var(--water); stroke: rgba(255,255,255,0.8); stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .graticule { fill: none; stroke: rgba(56, 78, 101, 0.16); stroke-width: 0.48; vector-effect: non-scaling-stroke; pointer-events: none; }
+    .country { cursor: pointer; stroke: #ffffff; stroke-width: 0.62; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .country:hover { fill-opacity: 0.92; }
+    .country.selected, .country.hovered { stroke: #333333; stroke-width: 1.45; }
+    .micro-marker { cursor: pointer; stroke: #333333; stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .micro-marker.hovered, .micro-marker.selected { stroke-width: 1.7; }
+    .title-card, .legend, .source-card, .info-card, .zoom-card {
+      position: absolute;
+      z-index: 5;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .title-card { top: 18px; left: 18px; max-width: min(640px, calc(100vw - 36px)); padding: 14px 16px 13px; }
+    .title-card h1 { margin: 0 0 7px; font-size: clamp(18px, 2.3vw, 28px); line-height: 1.12; letter-spacing: -0.025em; font-weight: 700; }
+    .title-card p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.42; }
+    .legend { right: 18px; bottom: 18px; width: 226px; padding: 13px 14px 14px; }
+    .legend h2 { margin: 0 0 9px; color: var(--text); font-size: 13px; line-height: 1.2; font-weight: 700; }
+    .legend-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; color: #2f3a45; font-size: 12px; line-height: 1.1; white-space: nowrap; }
+    .legend-row.gap { margin-top: 12px; }
+    .swatch { flex: 0 0 auto; width: 20px; height: 14px; display: inline-block; border: 1px solid rgba(0,0,0,0.25); border-radius: 3px; }
+    .source-card { left: 18px; bottom: 18px; width: min(690px, calc(100vw - 280px)); padding: 10px 12px; color: #34404b; font-size: 11.5px; line-height: 1.38; }
+    .info-card { right: 18px; top: 18px; width: min(330px, calc(100vw - 36px)); padding: 13px 14px 14px; color: #26323d; font-size: 13px; line-height: 1.4; }
+    .info-card.hidden { display: none; }
+    .info-card button { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: rgba(31, 41, 51, 0.08); color: #26323d; font: 700 15px/1 var(--text-font); cursor: pointer; }
+    .info-card button:hover { background: rgba(31, 41, 51, 0.14); }
+    .zoom-card { left: 18px; top: 142px; display: flex; overflow: hidden; }
+    .zoom-card button { min-width: 42px; height: 34px; border: 0; border-right: 1px solid var(--border); background: transparent; color: var(--text); font-family: var(--text-font); font-size: 13px; font-weight: 700; cursor: pointer; }
+    .zoom-card button:last-child { border-right: 0; }
+    .zoom-card button:hover { background: rgba(31, 41, 51, 0.08); }
+    .tooltip { position: fixed; z-index: 10; max-width: 300px; padding: 9px 10px; background: rgba(255,255,255,0.97); border: 1px solid rgba(31,41,51,0.18); border-radius: 10px; box-shadow: 0 8px 26px rgba(31,41,51,0.18); color: #24313d; font-size: 12.5px; line-height: 1.35; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity 90ms ease, transform 90ms ease; }
+    .tooltip.visible { opacity: 1; transform: translateY(0); }
+    .tooltip strong, .info-card strong { font-weight: 700; }
+    .source-country, .micro-label { color: #66717d; font-size: 11px; }
+    .na-text { color: #4f5b66; }
+    .loading { position: absolute; inset: 0; display: grid; place-items: center; color: #34404b; font-size: 13px; }
+    @media (max-width: 780px) {
+      .title-card { top: 12px; left: 12px; right: 12px; }
+      .zoom-card { top: 120px; left: 12px; }
+      .legend { right: 12px; bottom: 12px; width: 210px; }
+      .source-card { left: 12px; bottom: 12px; width: calc(100vw - 246px); font-size: 10.5px; }
+      .info-card { right: 12px; top: 12px; }
+    }
+    @media (max-width: 560px) {
+      body { overflow: auto; }
+      #map-wrap { min-height: 740px; }
+      .source-card { display: none; }
+      .legend { left: 12px; right: auto; bottom: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="map-wrap">
+    <div id="map" role="application" aria-label="Map of population with access to clean cooking fuels and technologies, 2024 (percent)"><div class="loading">Loading map...</div></div>
+    <section class="title-card" aria-label="Map title">
+      <h1>Population with Access to Clean Cooking Fuels and Technologies, <span class="num">2024</span> (Percent)</h1>
+      <p>Hover or click countries for details. Small countries are shown with point markers for visibility.</p>
+    </section>
+    <div class="zoom-card" aria-label="Map zoom controls">
+      <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+      <button id="zoom-out" type="button" aria-label="Zoom out">-</button>
+      <button id="reset-view" type="button" aria-label="Reset map view">Reset</button>
+    </div>
+    <aside id="info-card" class="info-card hidden" aria-live="polite">
+      <button id="close-info" type="button" aria-label="Close country information">x</button>
+      <div id="info-content"></div>
+    </aside>
+    <aside id="legend" class="legend" aria-label="Map legend"></aside>
+    <aside id="source-card" class="source-card" aria-label="Source note"></aside>
+    <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script>
+    const countryValues = [{"country":"Afghanistan","iso3":"AFG","id":"004","percent":30.0,"percentText":"30%","color":"#e7da83","classLabel":"26–35"},{"country":"Albania","iso3":"ALB","id":"008","percent":89.0,"percentText":"89%","color":"#1a8848","classLabel":"86–95"},{"country":"Algeria","iso3":"DZA","id":"012","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Andorra","iso3":"AND","id":"020","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Angola","iso3":"AGO","id":"024","percent":56.0,"percentText":"56%","color":"#93cb7e","classLabel":"56–65"},{"country":"Antigua and Barbuda","iso3":"ATG","id":"028","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Argentina","iso3":"ARG","id":"032","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Armenia","iso3":"ARM","id":"051","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Australia","iso3":"AUS","id":"036","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Austria","iso3":"AUT","id":"040","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Azerbaijan","iso3":"AZE","id":"031","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Bahamas","iso3":"BHS","id":"044","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Bahrain","iso3":"BHR","id":"048","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Bangladesh","iso3":"BGD","id":"050","percent":29.0,"percentText":"29%","color":"#e7da83","classLabel":"26–35"},{"country":"Barbados","iso3":"BRB","id":"052","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Belarus","iso3":"BLR","id":"112","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Belgium","iso3":"BEL","id":"056","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Belize","iso3":"BLZ","id":"084","percent":89.0,"percentText":"89%","color":"#1a8848","classLabel":"86–95"},{"country":"Benin","iso3":"BEN","id":"204","percent":8.0,"percentText":"8%","color":"#eae4b8","classLabel":"6–15"},{"country":"Bhutan","iso3":"BTN","id":"064","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Bolivia (Plurinational State of)","iso3":"BOL","id":"068","percent":91.0,"percentText":"91%","color":"#1a8848","classLabel":"86–95"},{"country":"Bosnia and Herzegovina","iso3":"BIH","id":"070","percent":65.0,"percentText":"65%","color":"#93cb7e","classLabel":"56–65"},{"country":"Botswana","iso3":"BWA","id":"072","percent":71.0,"percentText":"71%","color":"#68be6f","classLabel":"66–75"},{"country":"Brazil","iso3":"BRA","id":"076","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Brunei Darussalam","iso3":"BRN","id":"096","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Bulgaria","iso3":"BGR","id":"100","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Burkina Faso","iso3":"BFA","id":"854","percent":18.0,"percentText":"18%","color":"#e7dea0","classLabel":"16–25"},{"country":"Burundi","iso3":"BDI","id":"108","percent":0.0,"percentText":"0%","color":"#ecead8","classLabel":"0–5"},{"country":"Cabo Verde","iso3":"CPV","id":"132","percent":89.0,"percentText":"89%","color":"#1a8848","classLabel":"86–95"},{"country":"Cambodia","iso3":"KHM","id":"116","percent":57.0,"percentText":"57%","color":"#93cb7e","classLabel":"56–65"},{"country":"Cameroon","iso3":"CMR","id":"120","percent":32.0,"percentText":"32%","color":"#e7da83","classLabel":"26–35"},{"country":"Canada","iso3":"CAN","id":"124","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Central African Republic","iso3":"CAF","id":"140","percent":1.0,"percentText":"1%","color":"#ecead8","classLabel":"0–5"},{"country":"Chad","iso3":"TCD","id":"148","percent":11.0,"percentText":"11%","color":"#eae4b8","classLabel":"6–15"},{"country":"Chile","iso3":"CHL","id":"152","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"China","iso3":"CHN","id":"156","percent":90.0,"percentText":"90%","color":"#1a8848","classLabel":"86–95"},{"country":"Colombia","iso3":"COL","id":"170","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Comoros","iso3":"COM","id":"174","percent":11.0,"percentText":"11%","color":"#eae4b8","classLabel":"6–15"},{"country":"Congo","iso3":"COG","id":"178","percent":40.0,"percentText":"40%","color":"#d6d77d","classLabel":"36–45"},{"country":"Cook Islands","iso3":"COK","id":"184","percent":85.0,"percentText":"85%","color":"#38a65b","classLabel":"76–85"},{"country":"Costa Rica","iso3":"CRI","id":"188","percent":97.0,"percentText":"97%","color":"#006837","classLabel":"96–100"},{"country":"Cote d'Ivoire","iso3":"CIV","id":"384","percent":48.0,"percentText":"48%","color":"#bdd487","classLabel":"46–55"},{"country":"Croatia","iso3":"HRV","id":"191","percent":97.0,"percentText":"97%","color":"#006837","classLabel":"96–100"},{"country":"Cuba","iso3":"CUB","id":"192","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Cyprus","iso3":"CYP","id":"196","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Czechia","iso3":"CZE","id":"203","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Democratic People's Republic of Korea","iso3":"PRK","id":"408","percent":22.0,"percentText":"22%","color":"#e7dea0","classLabel":"16–25"},{"country":"Democratic Republic of the Congo","iso3":"COD","id":"180","percent":5.0,"percentText":"5%","color":"#ecead8","classLabel":"0–5"},{"country":"Denmark","iso3":"DNK","id":"208","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Djibouti","iso3":"DJI","id":"262","percent":46.0,"percentText":"46%","color":"#bdd487","classLabel":"46–55"},{"country":"Dominica","iso3":"DMA","id":"212","percent":94.0,"percentText":"94%","color":"#1a8848","classLabel":"86–95"},{"country":"Dominican Republic","iso3":"DOM","id":"214","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Ecuador","iso3":"ECU","id":"218","percent":95.0,"percentText":"95%","color":"#1a8848","classLabel":"86–95"},{"country":"Egypt","iso3":"EGY","id":"818","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"El Salvador","iso3":"SLV","id":"222","percent":95.0,"percentText":"95%","color":"#1a8848","classLabel":"86–95"},{"country":"Equatorial Guinea","iso3":"GNQ","id":"226","percent":50.0,"percentText":"50%","color":"#bdd487","classLabel":"46–55"},{"country":"Eritrea","iso3":"ERI","id":"232","percent":21.0,"percentText":"21%","color":"#e7dea0","classLabel":"16–25"},{"country":"Estonia","iso3":"EST","id":"233","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Eswatini","iso3":"SWZ","id":"748","percent":56.0,"percentText":"56%","color":"#93cb7e","classLabel":"56–65"},{"country":"Ethiopia","iso3":"ETH","id":"231","percent":7.0,"percentText":"7%","color":"#eae4b8","classLabel":"6–15"},{"country":"Fiji","iso3":"FJI","id":"242","percent":61.0,"percentText":"61%","color":"#93cb7e","classLabel":"56–65"},{"country":"Finland","iso3":"FIN","id":"246","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"France","iso3":"FRA","id":"250","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Gabon","iso3":"GAB","id":"266","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Gambia","iso3":"GMB","id":"270","percent":3.0,"percentText":"3%","color":"#ecead8","classLabel":"0–5"},{"country":"Georgia","iso3":"GEO","id":"268","percent":95.0,"percentText":"95%","color":"#1a8848","classLabel":"86–95"},{"country":"Germany","iso3":"DEU","id":"276","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Ghana","iso3":"GHA","id":"288","percent":35.0,"percentText":"35%","color":"#e7da83","classLabel":"26–35"},{"country":"Greece","iso3":"GRC","id":"300","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Grenada","iso3":"GRD","id":"308","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Guatemala","iso3":"GTM","id":"320","percent":51.0,"percentText":"51%","color":"#bdd487","classLabel":"46–55"},{"country":"Guinea","iso3":"GIN","id":"324","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Guinea-Bissau","iso3":"GNB","id":"624","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Guyana","iso3":"GUY","id":"328","percent":73.0,"percentText":"73%","color":"#68be6f","classLabel":"66–75"},{"country":"Haiti","iso3":"HTI","id":"332","percent":6.0,"percentText":"6%","color":"#eae4b8","classLabel":"6–15"},{"country":"Honduras","iso3":"HND","id":"340","percent":57.0,"percentText":"57%","color":"#93cb7e","classLabel":"56–65"},{"country":"Hungary","iso3":"HUN","id":"348","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Iceland","iso3":"ISL","id":"352","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"India","iso3":"IND","id":"356","percent":81.0,"percentText":"81%","color":"#38a65b","classLabel":"76–85"},{"country":"Indonesia","iso3":"IDN","id":"360","percent":90.0,"percentText":"90%","color":"#1a8848","classLabel":"86–95"},{"country":"Iran (Islamic Republic of)","iso3":"IRN","id":"364","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Iraq","iso3":"IRQ","id":"368","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Ireland","iso3":"IRL","id":"372","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Israel","iso3":"ISR","id":"376","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Italy","iso3":"ITA","id":"380","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Jamaica","iso3":"JAM","id":"388","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Japan","iso3":"JPN","id":"392","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Jordan","iso3":"JOR","id":"400","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Kazakhstan","iso3":"KAZ","id":"398","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Kenya","iso3":"KEN","id":"404","percent":32.0,"percentText":"32%","color":"#e7da83","classLabel":"26–35"},{"country":"Kiribati","iso3":"KIR","id":"296","percent":24.0,"percentText":"24%","color":"#e7dea0","classLabel":"16–25"},{"country":"Kuwait","iso3":"KWT","id":"414","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Kyrgyzstan","iso3":"KGZ","id":"417","percent":82.0,"percentText":"82%","color":"#38a65b","classLabel":"76–85"},{"country":"Lao People's Democratic Republic","iso3":"LAO","id":"418","percent":10.0,"percentText":"10%","color":"#eae4b8","classLabel":"6–15"},{"country":"Latvia","iso3":"LVA","id":"428","percent":92.0,"percentText":"92%","color":"#1a8848","classLabel":"86–95"},{"country":"Lebanon","iso3":"LBN","id":"422","percent":90.0,"percentText":"90%","color":"#1a8848","classLabel":"86–95"},{"country":"Lesotho","iso3":"LSO","id":"426","percent":58.0,"percentText":"58%","color":"#93cb7e","classLabel":"56–65"},{"country":"Liberia","iso3":"LBR","id":"430","percent":1.0,"percentText":"1%","color":"#ecead8","classLabel":"0–5"},{"country":"Libya","iso3":"LBY","id":"434","percent":95.0,"percentText":"95%","color":"#1a8848","classLabel":"86–95"},{"country":"Lithuania","iso3":"LTU","id":"440","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Luxembourg","iso3":"LUX","id":"442","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Madagascar","iso3":"MDG","id":"450","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Malawi","iso3":"MWI","id":"454","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Malaysia","iso3":"MYS","id":"458","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Maldives","iso3":"MDV","id":"462","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Mali","iso3":"MLI","id":"466","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Malta","iso3":"MLT","id":"470","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Marshall Islands","iso3":"MHL","id":"584","percent":80.0,"percentText":"80%","color":"#38a65b","classLabel":"76–85"},{"country":"Mauritania","iso3":"MRT","id":"478","percent":56.0,"percentText":"56%","color":"#93cb7e","classLabel":"56–65"},{"country":"Mauritius","iso3":"MUS","id":"480","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Mexico","iso3":"MEX","id":"484","percent":88.0,"percentText":"88%","color":"#1a8848","classLabel":"86–95"},{"country":"Micronesia (Federated States of)","iso3":"FSM","id":"583","percent":35.0,"percentText":"35%","color":"#e7da83","classLabel":"26–35"},{"country":"Monaco","iso3":"MCO","id":"492","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Mongolia","iso3":"MNG","id":"496","percent":59.0,"percentText":"59%","color":"#93cb7e","classLabel":"56–65"},{"country":"Montenegro","iso3":"MNE","id":"499","percent":73.0,"percentText":"73%","color":"#68be6f","classLabel":"66–75"},{"country":"Morocco","iso3":"MAR","id":"504","percent":97.0,"percentText":"97%","color":"#006837","classLabel":"96–100"},{"country":"Mozambique","iso3":"MOZ","id":"508","percent":8.0,"percentText":"8%","color":"#eae4b8","classLabel":"6–15"},{"country":"Myanmar","iso3":"MMR","id":"104","percent":46.0,"percentText":"46%","color":"#bdd487","classLabel":"46–55"},{"country":"Namibia","iso3":"NAM","id":"516","percent":46.0,"percentText":"46%","color":"#bdd487","classLabel":"46–55"},{"country":"Nauru","iso3":"NRU","id":"520","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Nepal","iso3":"NPL","id":"524","percent":45.0,"percentText":"45%","color":"#d6d77d","classLabel":"36–45"},{"country":"Netherlands (Kingdom of the)","iso3":"NLD","id":"528","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"New Zealand","iso3":"NZL","id":"554","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Nicaragua","iso3":"NIC","id":"558","percent":63.0,"percentText":"63%","color":"#93cb7e","classLabel":"56–65"},{"country":"Niger","iso3":"NER","id":"562","percent":6.0,"percentText":"6%","color":"#eae4b8","classLabel":"6–15"},{"country":"Nigeria","iso3":"NGA","id":"566","percent":28.0,"percentText":"28%","color":"#e7da83","classLabel":"26–35"},{"country":"Niue","iso3":"NIU","id":"570","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"North Macedonia","iso3":"MKD","id":"807","percent":87.0,"percentText":"87%","color":"#1a8848","classLabel":"86–95"},{"country":"Norway","iso3":"NOR","id":"578","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Oman","iso3":"OMN","id":"512","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Pakistan","iso3":"PAK","id":"586","percent":51.0,"percentText":"51%","color":"#bdd487","classLabel":"46–55"},{"country":"Palau","iso3":"PLW","id":"585","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Panama","iso3":"PAN","id":"591","percent":94.0,"percentText":"94%","color":"#1a8848","classLabel":"86–95"},{"country":"Papua New Guinea","iso3":"PNG","id":"598","percent":12.0,"percentText":"12%","color":"#eae4b8","classLabel":"6–15"},{"country":"Paraguay","iso3":"PRY","id":"600","percent":76.0,"percentText":"76%","color":"#38a65b","classLabel":"76–85"},{"country":"Peru","iso3":"PER","id":"604","percent":93.0,"percentText":"93%","color":"#1a8848","classLabel":"86–95"},{"country":"Philippines","iso3":"PHL","id":"608","percent":64.0,"percentText":"64%","color":"#93cb7e","classLabel":"56–65"},{"country":"Poland","iso3":"POL","id":"616","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Portugal","iso3":"PRT","id":"620","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Qatar","iso3":"QAT","id":"634","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Republic of Korea","iso3":"KOR","id":"410","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Republic of Moldova","iso3":"MDA","id":"498","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Romania","iso3":"ROU","id":"642","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Russian Federation","iso3":"RUS","id":"643","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Rwanda","iso3":"RWA","id":"646","percent":9.0,"percentText":"9%","color":"#eae4b8","classLabel":"6–15"},{"country":"Saint Kitts and Nevis","iso3":"KNA","id":"659","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Saint Lucia","iso3":"LCA","id":"662","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Saint Vincent and the Grenadines","iso3":"VCT","id":"670","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Samoa","iso3":"WSM","id":"882","percent":65.0,"percentText":"65%","color":"#93cb7e","classLabel":"56–65"},{"country":"San Marino","iso3":"SMR","id":"674","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Sao Tome and Principe","iso3":"STP","id":"678","percent":7.0,"percentText":"7%","color":"#eae4b8","classLabel":"6–15"},{"country":"Saudi Arabia","iso3":"SAU","id":"682","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Senegal","iso3":"SEN","id":"686","percent":39.0,"percentText":"39%","color":"#d6d77d","classLabel":"36–45"},{"country":"Serbia","iso3":"SRB","id":"688","percent":89.0,"percentText":"89%","color":"#1a8848","classLabel":"86–95"},{"country":"Seychelles","iso3":"SYC","id":"690","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Sierra Leone","iso3":"SLE","id":"694","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Singapore","iso3":"SGP","id":"702","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Slovakia","iso3":"SVK","id":"703","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Slovenia","iso3":"SVN","id":"705","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Solomon Islands","iso3":"SLB","id":"090","percent":14.0,"percentText":"14%","color":"#eae4b8","classLabel":"6–15"},{"country":"Somalia","iso3":"SOM","id":"706","percent":5.0,"percentText":"5%","color":"#ecead8","classLabel":"0–5"},{"country":"South Africa","iso3":"ZAF","id":"710","percent":90.0,"percentText":"90%","color":"#1a8848","classLabel":"86–95"},{"country":"South Sudan","iso3":"SSD","id":"728","percent":0.0,"percentText":"0%","color":"#ecead8","classLabel":"0–5"},{"country":"Spain","iso3":"ESP","id":"724","percent":97.0,"percentText":"97%","color":"#006837","classLabel":"96–100"},{"country":"Sri Lanka","iso3":"LKA","id":"144","percent":31.0,"percentText":"31%","color":"#e7da83","classLabel":"26–35"},{"country":"Sudan","iso3":"SDN","id":"729","percent":47.0,"percentText":"47%","color":"#bdd487","classLabel":"46–55"},{"country":"Suriname","iso3":"SUR","id":"740","percent":95.0,"percentText":"95%","color":"#1a8848","classLabel":"86–95"},{"country":"Sweden","iso3":"SWE","id":"752","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Switzerland","iso3":"CHE","id":"756","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Syrian Arab Republic","iso3":"SYR","id":"760","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100"},{"country":"Tajikistan","iso3":"TJK","id":"762","percent":88.0,"percentText":"88%","color":"#1a8848","classLabel":"86–95"},{"country":"Thailand","iso3":"THA","id":"764","percent":88.0,"percentText":"88%","color":"#1a8848","classLabel":"86–95"},{"country":"Timor-Leste","iso3":"TLS","id":"626","percent":19.0,"percentText":"19%","color":"#e7dea0","classLabel":"16–25"},{"country":"Togo","iso3":"TGO","id":"768","percent":15.0,"percentText":"15%","color":"#eae4b8","classLabel":"6–15"},{"country":"Tonga","iso3":"TON","id":"776","percent":91.0,"percentText":"91%","color":"#1a8848","classLabel":"86–95"},{"country":"Trinidad and Tobago","iso3":"TTO","id":"780","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Tunisia","iso3":"TUN","id":"788","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Türkiye","iso3":"TUR","id":"792","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100"},{"country":"Turkmenistan","iso3":"TKM","id":"795","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Tuvalu","iso3":"TUV","id":"798","percent":84.0,"percentText":"84%","color":"#38a65b","classLabel":"76–85"},{"country":"Uganda","iso3":"UGA","id":"800","percent":2.0,"percentText":"2%","color":"#ecead8","classLabel":"0–5"},{"country":"Ukraine","iso3":"UKR","id":"804","percent":97.0,"percentText":"97%","color":"#006837","classLabel":"96–100"},{"country":"United Arab Emirates","iso3":"ARE","id":"784","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"United Kingdom of Great Britain and Northern Ireland","iso3":"GBR","id":"826","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"United Republic of Tanzania","iso3":"TZA","id":"834","percent":11.0,"percentText":"11%","color":"#eae4b8","classLabel":"6–15"},{"country":"United States of America","iso3":"USA","id":"840","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100"},{"country":"Uruguay","iso3":"URY","id":"858","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100"},{"country":"Uzbekistan","iso3":"UZB","id":"860","percent":94.0,"percentText":"94%","color":"#1a8848","classLabel":"86–95"},{"country":"Vanuatu","iso3":"VUT","id":"548","percent":20.0,"percentText":"20%","color":"#e7dea0","classLabel":"16–25"},{"country":"Venezuela (Bolivarian Republic of)","iso3":"VEN","id":"862","percent":92.0,"percentText":"92%","color":"#1a8848","classLabel":"86–95"},{"country":"Viet Nam","iso3":"VNM","id":"704","percent":91.0,"percentText":"91%","color":"#1a8848","classLabel":"86–95"},{"country":"Yemen","iso3":"YEM","id":"887","percent":47.0,"percentText":"47%","color":"#bdd487","classLabel":"46–55"},{"country":"Zambia","iso3":"ZMB","id":"894","percent":10.0,"percentText":"10%","color":"#eae4b8","classLabel":"6–15"},{"country":"Zimbabwe","iso3":"ZWE","id":"716","percent":37.0,"percentText":"37%","color":"#d6d77d","classLabel":"36–45"}];
+    const microMarkers = [{"country":"Andorra","iso3":"AND","id":"020","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":42.5063,"lon":1.5218},{"country":"Antigua and Barbuda","iso3":"ATG","id":"028","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100","lat":17.0608,"lon":-61.7964},{"country":"Bahrain","iso3":"BHR","id":"048","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":26.0667,"lon":50.5577},{"country":"Barbados","iso3":"BRB","id":"052","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":13.1939,"lon":-59.5432},{"country":"Cabo Verde","iso3":"CPV","id":"132","percent":89.0,"percentText":"89%","color":"#1a8848","classLabel":"86–95","lat":16.5388,"lon":-23.0418},{"country":"Comoros","iso3":"COM","id":"174","percent":11.0,"percentText":"11%","color":"#eae4b8","classLabel":"6–15","lat":-11.875,"lon":43.8722},{"country":"Cook Islands","iso3":"COK","id":"184","percent":85.0,"percentText":"85%","color":"#38a65b","classLabel":"76–85","lat":-21.2367,"lon":-159.7777},{"country":"Dominica","iso3":"DMA","id":"212","percent":94.0,"percentText":"94%","color":"#1a8848","classLabel":"86–95","lat":15.415,"lon":-61.371},{"country":"Grenada","iso3":"GRD","id":"308","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100","lat":12.1165,"lon":-61.679},{"country":"Kiribati","iso3":"KIR","id":"296","percent":24.0,"percentText":"24%","color":"#e7dea0","classLabel":"16–25","lat":1.4518,"lon":172.9717},{"country":"Maldives","iso3":"MDV","id":"462","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":3.2028,"lon":73.2207},{"country":"Malta","iso3":"MLT","id":"470","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":35.9375,"lon":14.3754},{"country":"Marshall Islands","iso3":"MHL","id":"584","percent":80.0,"percentText":"80%","color":"#38a65b","classLabel":"76–85","lat":7.1315,"lon":171.1845},{"country":"Mauritius","iso3":"MUS","id":"480","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100","lat":-20.3484,"lon":57.5522},{"country":"Micronesia (Federated States of)","iso3":"FSM","id":"583","percent":35.0,"percentText":"35%","color":"#e7da83","classLabel":"26–35","lat":7.4256,"lon":150.5508},{"country":"Monaco","iso3":"MCO","id":"492","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":43.7384,"lon":7.4246},{"country":"Nauru","iso3":"NRU","id":"520","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100","lat":-0.5228,"lon":166.9315},{"country":"Niue","iso3":"NIU","id":"570","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100","lat":-19.0544,"lon":-169.8672},{"country":"Palau","iso3":"PLW","id":"585","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100","lat":7.515,"lon":134.5825},{"country":"Saint Kitts and Nevis","iso3":"KNA","id":"659","percent":96.0,"percentText":"96%","color":"#006837","classLabel":"96–100","lat":17.3578,"lon":-62.783},{"country":"Saint Lucia","iso3":"LCA","id":"662","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100","lat":13.9094,"lon":-60.9789},{"country":"Saint Vincent and the Grenadines","iso3":"VCT","id":"670","percent":98.0,"percentText":"98%","color":"#006837","classLabel":"96–100","lat":12.9843,"lon":-61.2872},{"country":"Samoa","iso3":"WSM","id":"882","percent":65.0,"percentText":"65%","color":"#93cb7e","classLabel":"56–65","lat":-13.759,"lon":-172.1046},{"country":"San Marino","iso3":"SMR","id":"674","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":43.9424,"lon":12.4578},{"country":"Sao Tome and Principe","iso3":"STP","id":"678","percent":7.0,"percentText":"7%","color":"#eae4b8","classLabel":"6–15","lat":0.1864,"lon":6.6131},{"country":"Seychelles","iso3":"SYC","id":"690","percent":99.0,"percentText":"99%","color":"#006837","classLabel":"96–100","lat":-4.6796,"lon":55.492},{"country":"Singapore","iso3":"SGP","id":"702","percent":100.0,"percentText":"100%","color":"#006837","classLabel":"96–100","lat":1.3521,"lon":103.8198},{"country":"Tonga","iso3":"TON","id":"776","percent":91.0,"percentText":"91%","color":"#1a8848","classLabel":"86–95","lat":-21.179,"lon":-175.1982},{"country":"Tuvalu","iso3":"TUV","id":"798","percent":84.0,"percentText":"84%","color":"#38a65b","classLabel":"76–85","lat":-7.1095,"lon":177.6493}];
+    const legendItems = [{"label":"0–5%","color":"#ecead8","numeric":true},{"label":"6–15%","color":"#eae4b8","numeric":true},{"label":"16–25%","color":"#e7dea0","numeric":true},{"label":"26–35%","color":"#e7da83","numeric":true},{"label":"36–45%","color":"#d6d77d","numeric":true},{"label":"46–55%","color":"#bdd487","numeric":true},{"label":"56–65%","color":"#93cb7e","numeric":true},{"label":"66–75%","color":"#68be6f","numeric":true},{"label":"76–85%","color":"#38a65b","numeric":true},{"label":"86–95%","color":"#1a8848","numeric":true},{"label":"96–100%","color":"#006837","numeric":true},{"label":"Not Applicable","color":"#d3d3d3","numeric":false},{"label":"Water / Ocean","color":"#c9ddf3","numeric":false}];
+    const stats = {"csvRecords":194,"microMarkers":29};
+    const WATER_COLOR = '#c9ddf3';
+    const NA_COLOR = '#d3d3d3';
+    const worldAtlasUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+
+    const dataById = new Map(countryValues.map(d => [String(d.id).padStart(3, '0'), d]));
+    const mapEl = document.getElementById('map');
+    const tooltip = d3.select('#tooltip');
+    const infoCard = d3.select('#info-card');
+    const infoContent = d3.select('#info-content');
+    let svg, g, countrySelection, markerSelection, zoomBehavior;
+    let currentTransform = d3.zoomIdentity;
+    let worldFeatures = null;
+    let resizeTimer;
+
+    function escapeHTML(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function featureName(feature) {
+      return feature && feature.properties && feature.properties.name ? feature.properties.name : 'Unknown country';
+    }
+
+    function infoHTML(obj, options = {}) {
+      const name = obj && obj.country ? obj.country : (obj && obj.name ? obj.name : 'Unknown country');
+      let html = '<strong>' + escapeHTML(name) + '</strong>';
+      if (!obj || obj.percentText === undefined) {
+        html += '<br><span class="na-text">Not Applicable / no CSV value</span>';
+      } else {
+        html += '<br><span class="num">' + escapeHTML(obj.percentText) + '</span>';
+      }
+      if (options.marker) {
+        html += '<br><span class="micro-label italic">Point marker for small country visibility</span>';
+      }
+      return html;
+    }
+
+    function showTooltip(event, html) {
+      tooltip.html(html).classed('visible', true);
+      moveTooltip(event);
+    }
+
+    function moveTooltip(event) {
+      const pad = 14;
+      const node = tooltip.node();
+      const box = node.getBoundingClientRect();
+      let left = event.clientX + pad;
+      let top = event.clientY + pad;
+      if (left + box.width > window.innerWidth - 8) left = event.clientX - box.width - pad;
+      if (top + box.height > window.innerHeight - 8) top = event.clientY - box.height - pad;
+      tooltip.style('left', Math.max(8, left) + 'px').style('top', Math.max(8, top) + 'px');
+    }
+
+    function hideTooltip() {
+      tooltip.classed('visible', false);
+    }
+
+    function openInfo(html) {
+      infoContent.html(html);
+      infoCard.classed('hidden', false);
+    }
+
+    function renderLegend() {
+      const legend = d3.select('#legend');
+      legend.html('');
+      legend.append('h2').text('Percent of population');
+      const rows = legend.selectAll('.legend-row')
+        .data(legendItems)
+        .join('div')
+        .attr('class', (d, i) => 'legend-row' + (i === legendItems.length - 2 ? ' gap' : ''));
+      rows.append('span')
+        .attr('class', 'swatch')
+        .style('background', d => d.color);
+      rows.append('span')
+        .attr('class', d => d.numeric ? 'num' : null)
+        .text(d => d.label);
+    }
+
+    function renderSource() {
+      d3.select('#source-card').html(
+        '<strong>Source:</strong> World Health Organization (WHO). (<span class="num">2026</span>). <em>Household Energy Database</em>. Global Health Observatory, WHO.<br>' +
+        '<strong>Map note:</strong> <span class="num">' + stats.microMarkers + '</span> small-country point markers included. Countries/territories without a value are shown as Not Applicable.'
+      );
+    }
+
+    function updateStrokeAndMarkers() {
+      const k = currentTransform.k || 1;
+      if (countrySelection) countrySelection.attr('stroke-width', 0.62 / k);
+      if (markerSelection) markerSelection.attr('r', 5.8 / k).attr('stroke-width', 1.05 / k);
+      if (g) g.selectAll('.graticule').attr('stroke-width', 0.48 / k);
+    }
+
+    function renderMap() {
+      if (!worldFeatures) return;
+      d3.select(mapEl).select('.loading').remove();
+      d3.select(mapEl).selectAll('svg').remove();
+      currentTransform = d3.zoomIdentity;
+      const width = Math.max(320, mapEl.clientWidth);
+      const height = Math.max(420, mapEl.clientHeight);
+
+      svg = d3.select(mapEl)
+        .append('svg')
+        .attr('viewBox', [0, 0, width, height].join(' '))
+        .attr('role', 'img')
+        .attr('aria-label', 'Equal-area thematic map of clean cooking fuel and technology access by country in 2024');
+
+      const projection = d3.geoEqualEarth()
+        .rotate([0, 0])
+        .precision(0.2)
+        .fitExtent([[28, 56], [width - 28, height - 38]], { type: 'Sphere' });
+      const path = d3.geoPath(projection);
+
+      zoomBehavior = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[-width * 0.5, -height * 0.5], [width * 1.5, height * 1.5]])
+        .on('zoom', (event) => {
+          currentTransform = event.transform;
+          g.attr('transform', currentTransform);
+          updateStrokeAndMarkers();
+        });
+      svg.call(zoomBehavior);
+      g = svg.append('g');
+
+      g.append('path').datum({ type: 'Sphere' }).attr('class', 'sphere').attr('d', path);
+      g.append('path').datum(d3.geoGraticule10()).attr('class', 'graticule').attr('d', path);
+
+      countrySelection = g.selectAll('path.country')
+        .data(worldFeatures)
+        .join('path')
+        .attr('class', 'country')
+        .attr('fill', d => {
+          const record = dataById.get(String(d.id).padStart(3, '0'));
+          return record ? record.color : NA_COLOR;
+        })
+        .attr('d', path)
+        .on('mouseenter', function(event, d) {
+          const record = dataById.get(String(d.id).padStart(3, '0')) || { name: featureName(d) };
+          d3.select(this).raise().classed('hovered', true).attr('stroke-width', 1.45 / currentTransform.k);
+          showTooltip(event, infoHTML(record));
+        })
+        .on('mousemove', function(event) { moveTooltip(event); })
+        .on('mouseleave', function() {
+          d3.select(this).classed('hovered', false).attr('stroke-width', 0.62 / currentTransform.k);
+          hideTooltip();
+        })
+        .on('click', function(event, d) {
+          event.stopPropagation();
+          const record = dataById.get(String(d.id).padStart(3, '0')) || { name: featureName(d) };
+          openInfo(infoHTML(record));
+        });
+
+      const projectedMarkers = microMarkers
+        .map(m => ({ ...m, point: projection([m.lon, m.lat]) }))
+        .filter(m => Array.isArray(m.point) && Number.isFinite(m.point[0]) && Number.isFinite(m.point[1]));
+
+      markerSelection = g.selectAll('circle.micro-marker')
+        .data(projectedMarkers)
+        .join('circle')
+        .attr('class', 'micro-marker')
+        .attr('cx', d => d.point[0])
+        .attr('cy', d => d.point[1])
+        .attr('r', 5.8)
+        .attr('fill', d => d.color)
+        .on('mouseenter', function(event, d) {
+          d3.select(this).raise().classed('hovered', true);
+          showTooltip(event, infoHTML(d, { marker: true }));
+        })
+        .on('mousemove', function(event) { moveTooltip(event); })
+        .on('mouseleave', function() {
+          d3.select(this).classed('hovered', false);
+          hideTooltip();
+        })
+        .on('click', function(event, d) {
+          event.stopPropagation();
+          openInfo(infoHTML(d, { marker: true }));
+        });
+
+      updateStrokeAndMarkers();
+      svg.on('click', () => infoCard.classed('hidden', true));
+    }
+
+    document.getElementById('close-info').addEventListener('click', (event) => {
+      event.stopPropagation();
+      infoCard.classed('hidden', true);
+    });
+    document.getElementById('reset-view').addEventListener('click', () => {
+      if (svg && zoomBehavior) svg.transition().duration(250).call(zoomBehavior.transform, d3.zoomIdentity);
+    });
+    document.getElementById('zoom-in').addEventListener('click', () => {
+      if (svg && zoomBehavior) svg.transition().duration(180).call(zoomBehavior.scaleBy, 1.35);
+    });
+    document.getElementById('zoom-out').addEventListener('click', () => {
+      if (svg && zoomBehavior) svg.transition().duration(180).call(zoomBehavior.scaleBy, 1 / 1.35);
+    });
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(renderMap, 160);
+    });
+
+    renderLegend();
+    renderSource();
+
+    d3.json(worldAtlasUrl).then(world => {
+      worldFeatures = topojson.feature(world, world.objects.countries).features;
+      renderMap();
+    }).catch(error => {
+      console.error(error);
+      d3.select('#map .loading').html('The map geometry could not be loaded from the online source. Please check your internet connection and reload.');
+    });
+  </script>
+</body>
+</html>
