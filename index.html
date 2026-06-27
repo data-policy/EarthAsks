@@ -187,8 +187,8 @@ h1,h2,h3{text-wrap:balance}
 .vitem__title{font-weight:600;font-size:.95rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .vitem__date{font-family:var(--font-mono);font-size:.7rem;color:var(--ink-soft);margin-top:.3rem}
 
-/* ---- Documents ---- */
-.docs{padding-block:clamp(2.2rem,5vw,3.4rem) clamp(3rem,7vw,5rem);scroll-margin-top:96px}
+/* ---- Wide sections ---- */
+.wide-section{padding-block:clamp(2.2rem,5vw,3.4rem) clamp(3rem,7vw,5rem);scroll-margin-top:96px}
 .doclist{display:grid;gap:.9rem}
 .doc{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem 1.2rem;align-items:start;background:var(--c-white);
   border:1px solid var(--line);border-left:5px solid var(--accent,var(--a-teal));border-radius:var(--radius);
@@ -288,12 +288,8 @@ h1,h2,h3{text-wrap:balance}
     </a>
     <nav class="nav" aria-label="Primary">
       <a class="nav__link" href="#cardnews">Cardnews</a>
-      <a class="nav__link" href="#videos">Videos</a>
       <a class="nav__link" href="#documents">Documents</a>
-      <a class="btn btn--yt" href="https://www.youtube.com/@EarthAsks?sub_confirmation=1" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M23 7.5a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.4A3 3 0 0 0 1 7.5 31 31 0 0 0 .6 12 31 31 0 0 0 1 16.5a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.4a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.4 12 31 31 0 0 0 23 7.5zM9.8 15.3V8.7l5.7 3.3z"/></svg>
-        Subscribe
-      </a>
+      <a class="nav__link" href="#videos">Videos</a>
     </nav>
   </div>
 </header>
@@ -330,42 +326,42 @@ h1,h2,h3{text-wrap:balance}
         <div id="cardnews-grid" class="cards" aria-live="polite"></div>
       </section>
 
-      <section class="col" id="videos" aria-labelledby="videos-title" data-reveal>
+      <section class="col" id="documents" aria-labelledby="docs-title" data-reveal>
         <header class="col__head">
           <div>
-            <p class="kicker">Live Q&amp;A · Explainers</p>
-            <h2 class="col__title" id="videos-title">Latest videos</h2>
+            <p class="kicker">Reports · Assessments · Papers</p>
+            <h2 class="col__title" id="docs-title">Documents</h2>
           </div>
-          <a class="col__more" href="https://www.youtube.com/@EarthAsks/videos" target="_blank" rel="noopener">All videos&nbsp;↗</a>
+          <a class="col__more" href="Documents.html">All documents&nbsp;↗</a>
         </header>
-        <p class="col__sub">Real-time answers and deep dives from the EarthAsks channel — the player below always opens the newest upload.</p>
-        <div class="player">
-          <iframe id="player" title="EarthAsks — latest videos" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-        </div>
-        <div class="vid-actions">
-          <a class="btn btn--yt" href="https://www.youtube.com/@EarthAsks?sub_confirmation=1" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M23 7.5a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.4A3 3 0 0 0 1 7.5 31 31 0 0 0 .6 12 31 31 0 0 0 1 16.5a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.4a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.4 12 31 31 0 0 0 23 7.5zM9.8 15.3V8.7l5.7 3.3z"/></svg>
-            Subscribe on YouTube
-          </a>
-          <a class="btn" href="https://www.youtube.com/@EarthAsks" target="_blank" rel="noopener">Visit the channel&nbsp;↗</a>
-        </div>
-        <ul id="video-list" class="vlist" aria-label="Recent videos"></ul>
+        <p class="col__sub">Key reports and reference reading behind the questions — newest first.</p>
+        <div id="docs-list" class="doclist"></div>
       </section>
     </div>
   </div>
 
   <div class="spectrum spectrum--rule" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-  <section class="docs" id="documents" aria-labelledby="docs-title">
+  <section class="wide-section" id="videos" aria-labelledby="videos-title">
     <div class="wrap" data-reveal>
       <header class="sec__head">
         <div>
-          <p class="kicker">Reports · Assessments · Papers</p>
-          <h2 class="sec__title" id="docs-title">Documents</h2>
+          <p class="kicker">Live Q&amp;A · Explainers</p>
+          <h2 class="sec__title" id="videos-title">Latest videos</h2>
         </div>
-        <a class="col__more" href="Documents.html">All documents&nbsp;↗</a>
+        <a class="col__more" href="https://www.youtube.com/@EarthAsks/videos" target="_blank" rel="noopener">All videos&nbsp;↗</a>
       </header>
-      <p class="sec__sub">Key reports and reference reading behind the questions — newest first.</p>
-      <div id="docs-list" class="doclist"></div>
+      <p class="sec__sub">Real-time answers and deep dives from the EarthAsks channel — the player below always opens the newest upload.</p>
+      <div class="player">
+        <iframe id="player" title="EarthAsks — latest videos" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div class="vid-actions">
+        <a class="btn btn--yt" href="https://www.youtube.com/@EarthAsks?sub_confirmation=1" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M23 7.5a3 3 0 0 0-2.1-2.1C19 5 12 5 12 5s-7 0-8.9.4A3 3 0 0 0 1 7.5 31 31 0 0 0 .6 12 31 31 0 0 0 1 16.5a3 3 0 0 0 2.1 2.1C5 19 12 19 12 19s7 0 8.9-.4a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.4 12 31 31 0 0 0 23 7.5zM9.8 15.3V8.7l5.7 3.3z"/></svg>
+          Subscribe on YouTube
+        </a>
+        <a class="btn" href="https://www.youtube.com/@EarthAsks" target="_blank" rel="noopener">Visit the channel&nbsp;↗</a>
+      </div>
+      <ul id="video-list" class="vlist" aria-label="Recent videos"></ul>
     </div>
   </section>
 </main>
@@ -547,7 +543,7 @@ const VIDEOS = [];
 
   /* ---- Documents (loaded from Documents.html, so adding a document never requires editing this page) ---- */
   const DOCS_PAGE = "Documents.html";
-  const MAX_DOCS = 4;
+  const MAX_DOCS = 5;
 
   const docCard = d => {
     const a=document.createElement("a");
@@ -577,7 +573,11 @@ const VIDEOS = [];
       const node=dom.getElementById("documents-data");
       if(!node) throw new Error("data block not found");
       const list=JSON.parse(node.textContent);
-      const docs=Array.isArray(list)?list.filter(d=>d&&d.title):[];
+      const docTime = d => {
+        const m=String((d&&d.date)||"").match(/^(\d{4})(?:[-/](\d{1,2}))?(?:[-/](\d{1,2}))?/);
+        return m ? Date.UTC(+m[1], (m[2]?+m[2]:1)-1, m[3]?+m[3]:1) : 0;
+      };
+      const docs=Array.isArray(list)?list.filter(d=>d&&d.title).sort((a,b)=>docTime(b)-docTime(a)):[];
       docList.innerHTML="";
       if(!docs.length){ docList.appendChild(docState("Documents will appear here","Add your first entry on the documents page.")); return; }
       docs.slice(0,MAX_DOCS).forEach(d=>docList.appendChild(docCard(d)));
