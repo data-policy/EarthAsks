@@ -126,7 +126,9 @@ h1,h2,h3{text-wrap:balance}
 .crisis{display:flex;align-items:center;gap:.5rem .9rem;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:1.25rem}
 .crisis__label{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.04em;
-  background:var(--c-white);border:1px solid var(--line-strong);border-radius:999px;padding:.34rem .8rem;color:var(--c-ink)}
+  background:var(--c-white);border:1px solid var(--line-strong);border-radius:999px;padding:.34rem .8rem;color:var(--c-ink);text-decoration:none}
+.chip:visited{color:var(--c-ink)}
+.chip:hover{border-color:var(--a-teal);text-decoration:none}
 .chip i{width:.62rem;height:.62rem;border-radius:50%;flex:0 0 auto}
 
 /* ---- Section heading shared ---- */
@@ -305,9 +307,9 @@ h1,h2,h3{text-wrap:balance}
       </div>
       <div class="crisis">
         <span class="crisis__label">The triple planetary crisis:</span>
-        <span class="chip"><i style="background:var(--a-orange)"></i>Climate change</span>
-        <span class="chip"><i style="background:var(--a-green)"></i>Biodiversity loss</span>
-        <span class="chip"><i style="background:var(--a-cyan)"></i>Pollution &amp; waste</span>
+        <a class="chip" href="https://www.ipcc.ch/" target="_blank" rel="noopener" aria-label="Open IPCC: science-policy panel for climate change"><i style="background:var(--a-orange)" aria-hidden="true"></i>Climate change</a>
+        <a class="chip" href="https://www.ipbes.net/" target="_blank" rel="noopener" aria-label="Open IPBES: science-policy panel for biodiversity loss"><i style="background:var(--a-green)" aria-hidden="true"></i>Biodiversity loss</a>
+        <a class="chip" href="https://www.unep.org/isp-cwp" target="_blank" rel="noopener" aria-label="Open ISP-CWP: science-policy panel for pollution and waste"><i style="background:var(--a-cyan)" aria-hidden="true"></i>Pollution &amp; waste</a>
       </div>
     </div>
   </section>
