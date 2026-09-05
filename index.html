@@ -126,7 +126,7 @@ h1,h2,h3{text-wrap:balance}
 .col__sub,.sec__sub{font-size:.92rem;color:var(--ink-soft);margin:.5rem 0 0;max-width:46ch}
 .col__more{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 /* ---- Streams: two content columns + sticky "Most viewed" rail ---- */
-.streams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 264px;gap:clamp(1.6rem,3vw,3rem);
+.streams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 236px;gap:clamp(1.4rem,2.6vw,2.4rem);
   padding-block:clamp(2.2rem,5vw,3.6rem) clamp(2.4rem,5vw,3.6rem);align-items:start}
 @media (max-width:1120px){
   .streams{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2rem,4vw,4rem)}
@@ -223,7 +223,7 @@ h1,h2,h3{text-wrap:balance}
 /* ---- Wide sections ---- */
 .wide-section{padding-block:clamp(2.2rem,5vw,3.4rem) clamp(3rem,7vw,5rem);scroll-margin-top:96px}
 .doclist{display:grid;gap:.9rem}
-.doc{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem 1.2rem;align-items:start;background:var(--c-white);
+.doc{display:flex;flex-direction:column;gap:.6rem;background:var(--c-white);
   border:1px solid var(--line);border-left:5px solid var(--accent,var(--a-teal));border-radius:var(--radius);
   padding:1.05rem 1.3rem;text-decoration:none;color:inherit;box-shadow:var(--shadow-sm);
   transition:box-shadow .2s ease,transform .2s ease}
@@ -235,18 +235,16 @@ h1,h2,h3{text-wrap:balance}
 .doc:nth-child(6n+5){--accent:var(--a-orange)}
 .doc:nth-child(6n+6){--accent:var(--a-red)}
 @media (prefers-reduced-motion: no-preference){ .doc:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)} }
+.doc__top{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
 .doc__kind{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;
-  background:var(--accent,var(--a-teal));padding:.32rem .55rem;border-radius:4px;white-space:nowrap;align-self:start;font-weight:600}
+  background:var(--accent,var(--a-teal));padding:.32rem .55rem;border-radius:4px;white-space:nowrap;font-weight:600}
+.doc__body{display:block;min-width:0}
 .doc__title{font-weight:600;font-size:1.06rem;line-height:1.36;display:block}
 .doc__alt{display:block;font-size:.96rem;color:var(--ink-soft);margin-top:.25rem;line-height:1.4}
 .doc__cite{display:block;font-size:.84rem;color:var(--ink-soft);margin-top:.55rem;font-style:italic}
-.doc__go{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;white-space:nowrap;text-align:right}
+.doc__go{display:flex;align-items:center;gap:.55rem;white-space:nowrap;margin-left:auto}
 .doc__date{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft)}
 .doc__arrow{font-size:1.15rem;color:var(--a-teal);line-height:1}
-@media (max-width:560px){
-  .doc{grid-template-columns:1fr;gap:.6rem}
-  .doc__go{flex-direction:row;align-items:center;justify-content:space-between;width:100%}
-}
 /* ---- States ---- */
 .state{border:1px dashed var(--line-strong);border-radius:var(--radius);padding:1.8rem 1.4rem;background:var(--c-white);color:var(--ink-soft)}
 .state h3{font-family:var(--font-sans);font-weight:600;color:var(--c-ink);margin:0 0 .5rem;font-size:1.05rem}
@@ -684,13 +682,15 @@ const VIEWS_DB = "";
     const a=document.createElement("a");
     a.className="doc"; a.href=d.link||"#"; a.target="_blank"; a.rel="noopener";
     a.innerHTML=
-      '<span class="doc__kind">'+esc(d.kind||"Document")+'</span>'+
+      '<span class="doc__top">'+
+        '<span class="doc__kind">'+esc(d.kind||"Document")+'</span>'+
+        '<span class="doc__go"><span class="doc__date">'+esc(fmtDate(d.date))+'</span><span class="doc__arrow" aria-hidden="true">↗</span></span>'+
+      '</span>'+
       '<span class="doc__body">'+
         '<span class="doc__title">'+esc(d.title)+'</span>'+
         (d.titleAlt?'<span class="doc__alt" lang="ko">'+esc(d.titleAlt)+'</span>':'')+
         (d.citation?'<span class="doc__cite">'+esc(d.citation)+'</span>':'')+
-      '</span>'+
-      '<span class="doc__go"><span class="doc__date">'+esc(fmtDate(d.date))+'</span><span class="doc__arrow" aria-hidden="true">↗</span></span>';
+      '</span>';
     a.addEventListener("click",()=>recordView({kind:"document",title:d.title,link:d.link,date:d.date,ref:d.link||d.title}));
     return a;
   };
